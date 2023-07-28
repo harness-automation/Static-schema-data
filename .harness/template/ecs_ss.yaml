@@ -1,0 +1,17 @@
+template:
+  name: Configure Blue Green Deployment
+  identifier: ecs
+  versionLabel: ss
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: EcsBlueGreenCreateService
+    timeout: 10m
+    spec:
+      loadBalancer: <+input>
+      prodListener: <+input>
+      prodListenerRuleArn: <+input>
+      stageListener: <+input>
+      stageListenerRuleArn: <+input>
