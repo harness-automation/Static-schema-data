@@ -1,0 +1,12 @@
+template:
+  name: Elastigroup Rollback
+  identifier: Elastigroup_Rollback
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: ElastigroupRollback
+    spec: {}
+    timeout: 10m
