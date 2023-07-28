@@ -1,0 +1,12 @@
+template:
+  name: Rolling Rollback
+  identifier: Rolling_Rollback
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: TasRollingRollback
+    timeout: 10m
+    spec: {}
