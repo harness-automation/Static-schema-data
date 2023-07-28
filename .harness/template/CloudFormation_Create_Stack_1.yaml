@@ -1,0 +1,29 @@
+template:
+  name: CloudFormation Create Stack
+  identifier: CloudFormation_Create_Stack
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: CreateStack
+    timeout: 10m
+    spec:
+      provisionerIdentifier: <+input>
+      configuration:
+        stackName: <+input>
+        connectorRef: <+input>
+        templateFile:
+          type: Remote
+          spec:
+            store:
+              type: Github
+              spec:
+                paths: <+input>
+                connectorRef: org.GithubAccLevelConnector
+                repoName: <+input>
+                gitFetchType: Branch
+                branch: <+input>
+        roleArn: ""
+        region: ap-south-1
