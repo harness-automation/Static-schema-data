@@ -1,0 +1,16 @@
+template:
+  name: Asg_canary_deploy_ar7
+  identifier: Asg_template1
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  tags: {}
+  spec:
+    timeout: <+input>
+    type: AsgCanaryDeploy
+    spec:
+      instanceSelection:
+        type: Count
+        spec:
+          count: <+input>
