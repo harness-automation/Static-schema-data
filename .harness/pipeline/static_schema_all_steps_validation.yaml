@@ -1034,6 +1034,12 @@ pipeline:
                   template:
                     templateRef: k8s_Canary_Deployment
                     versionLabel: "1"
+              - step:
+                  name: K8s BlueGreenStageScaleDown
+                  identifier: K8s_BlueGreenStageScaleDown
+                  template:
+                    templateRef: k8s_template
+                    versionLabel: "1"
             rollbackSteps: []
         tags: {}
         failureStrategies:
