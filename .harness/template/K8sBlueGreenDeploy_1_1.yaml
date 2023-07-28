@@ -1,0 +1,14 @@
+template:
+  name: K8sBlueGreenDeploy_1
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  spec:
+    type: K8sBlueGreenDeploy
+    spec:
+      skipDryRun: false
+      pruningEnabled: false
+      skipUnchangedManifest: false
+    timeout: 10m
+  identifier: K8sBlueGreenDeploy_1
+  versionLabel: "1"
