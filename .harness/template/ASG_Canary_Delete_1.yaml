@@ -3,7 +3,7 @@ template:
   identifier: ASG_Canary_Delete
   versionLabel: "1"
   type: Step
-  projectIdentifier: DoNotDelete_AmitSingh
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
   orgIdentifier: Ng_Pipelines_K8s_Organisations
   tags: {}
   spec:
