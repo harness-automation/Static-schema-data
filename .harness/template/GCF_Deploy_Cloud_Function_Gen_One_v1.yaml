@@ -1,0 +1,13 @@
+template:
+  name: GCF Deploy Cloud Function Gen One
+  identifier: GCF_Deploy_Cloud_Function_Gen_One
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: DeployCloudFunctionGenOne
+    timeout: 10m
+    spec:
+      updateFieldMask: <+input>
