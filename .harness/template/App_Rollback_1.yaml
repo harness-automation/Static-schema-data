@@ -1,0 +1,12 @@
+template:
+  name: App Rollback
+  identifier: App_Rollback
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: AppRollback
+    timeout: 10m
+    spec: {}
