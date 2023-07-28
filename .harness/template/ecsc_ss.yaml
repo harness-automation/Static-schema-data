@@ -1,0 +1,14 @@
+template:
+  name: ECS Rolling Deploy
+  identifier: ecsc
+  versionLabel: ss
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: EcsRollingDeploy
+    timeout: 10m
+    spec:
+      sameAsAlreadyRunningInstances: <+input>
+      forceNewDeployment: <+input>
