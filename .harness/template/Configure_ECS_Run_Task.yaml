@@ -1,0 +1,27 @@
+template:
+  name: Configure ECS Run Task
+  identifier: sssss
+  versionLabel: ss
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: EcsRunTask
+    timeout: 10m
+    spec:
+      skipSteadyStateCheck: false
+      taskDefinition:
+        type: Git
+        spec:
+          connectorRef: <+input>
+          gitFetchType: Branch
+          paths:
+            - <+hello>
+          repoName: <+input>
+          branch: <+input>
+      runTaskRequestDefinition:
+        type: Harness
+        spec:
+          files:
+            - <+hello>
