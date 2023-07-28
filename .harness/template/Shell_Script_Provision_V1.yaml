@@ -1,0 +1,17 @@
+template:
+  name: Shell Script Provision
+  identifier: Shell_Script_Provision
+  versionLabel: V1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    timeout: 10m
+    type: ShellScriptProvision
+    spec:
+      source:
+        type: Inline
+        spec:
+          script: echo hi
+      environmentVariables: []
