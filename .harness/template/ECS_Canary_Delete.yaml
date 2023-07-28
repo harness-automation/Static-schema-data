@@ -1,10 +1,9 @@
 template:
   name: ECS Canary Delete
-  identifier: ecs1
   versionLabel: v1
   type: Step
-    projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
-    orgIdentifier: Ng_Pipelines_K8s_Organisations
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
   tags: {}
   spec:
     type: EcsCanaryDelete
