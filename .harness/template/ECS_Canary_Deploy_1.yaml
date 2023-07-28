@@ -1,0 +1,12 @@
+template:
+  name: ECS Canary Deploy
+  identifier: ECS_Canary_Deploy
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: EcsCanaryDeploy
+    timeout: 10m
+    spec: {}
