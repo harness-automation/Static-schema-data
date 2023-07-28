@@ -1,0 +1,24 @@
+template:
+  name: Create Azure BP Resources
+  identifier: Create_Azure_BP_Resources
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: AzureCreateBPResource
+    timeout: 10m
+    spec:
+      configuration:
+        connectorRef: <+input>
+        assignmentName: <+input>
+        scope: Subscription
+        template:
+          store:
+            type: Git
+            spec:
+              connectorRef: org.GitConnectorForAutomationTest
+              gitFetchType: Branch
+              folderPath: <+input>
+              branch: <+input>
