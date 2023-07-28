@@ -1,0 +1,17 @@
+template:
+  name: Jenkins Build
+  identifier: Jenkins_Build
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: JenkinsBuild
+    spec:
+      connectorRef: <+input>
+      jobName: <+input>
+      jobParameter: <+input>
+      unstableStatusAsSuccess: false
+      useConnectorUrlForJobExecution: false
+    timeout: <+input>
