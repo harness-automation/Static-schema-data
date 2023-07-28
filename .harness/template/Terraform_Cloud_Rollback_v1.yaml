@@ -1,0 +1,16 @@
+template:
+  name: Terraform Cloud Rollback
+  identifier: Terraform_Cloud_Rollback
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    timeout: 10m
+    type: TerraformCloudRollback
+    spec:
+      provisionerIdentifier: <+input>
+      discardPendingRuns: <+input>
+      runMessage: <+input>
+      overridePolicies: <+input>
