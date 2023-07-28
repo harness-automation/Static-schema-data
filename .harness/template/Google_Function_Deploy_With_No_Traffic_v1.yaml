@@ -1,0 +1,13 @@
+template:
+  name: Google Function Deploy With No Traffic
+  identifier: Google_Function_Deploy_With_No_Traffic
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: DeployCloudFunctionWithNoTraffic
+    timeout: 10m
+    spec:
+      updateFieldMask: <+input>
