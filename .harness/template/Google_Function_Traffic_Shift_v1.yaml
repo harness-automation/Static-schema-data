@@ -1,0 +1,13 @@
+template:
+  name: Google Function Traffic Shift
+  identifier: Google_Function_Traffic_Shift
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: CloudFunctionTrafficShift
+    timeout: 10m
+    spec:
+      trafficPercent: 0
