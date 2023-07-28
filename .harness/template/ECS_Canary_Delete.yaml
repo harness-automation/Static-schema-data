@@ -1,6 +1,6 @@
 template:
   name: ECS Canary Delete
-  identifier: ECS Canary Delete
+  identifier: ECS_Canary_Delete
   versionLabel: v1
   type: Step
   projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
