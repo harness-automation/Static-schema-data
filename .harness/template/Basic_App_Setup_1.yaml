@@ -1,0 +1,15 @@
+template:
+  name: Basic App Setup
+  identifier: Basic_App_Setup
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    timeout: 10m
+    type: BasicAppSetup
+    spec:
+      tasInstanceCountType: FromManifest
+      existingVersionToKeep: 3
+      additionalRoutes: <+input>
