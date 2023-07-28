@@ -1,0 +1,18 @@
+template:
+  name: ServiceNow ImportSet
+  identifier: ServiceNow_ImportSet
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    timeout: 10m
+    type: ServiceNowImportSet
+    spec:
+      connectorRef: <+input>
+      stagingTableName: <+input>
+      importData:
+        type: Json
+        spec:
+          jsonBody: <+input>
