@@ -1,0 +1,12 @@
+template:
+  name: Cloud Function Rollback Gen One
+  identifier: Cloud_Function_Rollback_Gen_One
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: RollbackCloudFunctionGenOne
+    timeout: 10m
+    spec: {}
