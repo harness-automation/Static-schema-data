@@ -1,0 +1,12 @@
+template:
+  name: ECS Rolling Rollback
+  identifier: ECS_Rolling_Rollback
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: EcsRollingRollback
+    timeout: 10m
+    spec: {}
