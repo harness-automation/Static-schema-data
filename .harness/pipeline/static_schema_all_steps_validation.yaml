@@ -1028,6 +1028,12 @@ pipeline:
                       type: K8sScale
                       spec:
                         workload: <+input>
+              - step:
+                  name: K8s Canary Deployment
+                  identifier: K8s_Canary_Deployment
+                  template:
+                    templateRef: k8s_Canary_Deployment
+                    versionLabel: "1"
             rollbackSteps: []
         tags: {}
         failureStrategies:
