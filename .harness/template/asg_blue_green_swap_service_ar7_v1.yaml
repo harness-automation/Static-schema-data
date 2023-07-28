@@ -1,0 +1,13 @@
+template:
+  name: asg_blue_green_swap_service_ar7
+  identifier: asg_blue_green_swap_service_ar7
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  tags: {}
+  spec:
+    timeout: 10m
+    type: AsgBlueGreenSwapService
+    spec:
+      downsizeOldAsg: <+input>
