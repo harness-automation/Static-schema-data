@@ -1,0 +1,13 @@
+template:
+  name: Swap Rollback
+  identifier: Swap_Rollback
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: SwapRollback
+    timeout: 10m
+    spec:
+      upsizeInActiveApp: false
