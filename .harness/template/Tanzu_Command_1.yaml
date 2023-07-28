@@ -1,0 +1,17 @@
+template:
+  name: Tanzu Command
+  identifier: Tanzu_Command
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: TanzuCommand
+    timeout: <+input>
+    spec:
+      script:
+        store:
+          type: Harness
+          spec:
+            files: <+input>
