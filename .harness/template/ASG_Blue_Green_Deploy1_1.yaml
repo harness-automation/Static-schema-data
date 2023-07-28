@@ -1,0 +1,18 @@
+template:
+  name: ASG_Blue_Green_Deploy1_ar7
+  identifier: ASG_Blue_Green_Deploy1
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: AsgBlueGreenDeploy
+    timeout: <+input>
+    spec:
+      useAlreadyRunningInstances: false
+      loadBalancer: <+input>
+      prodListener: <+input>
+      prodListenerRuleArn: <+input>
+      stageListener: <+input>
+      stageListenerRuleArn: <+input>
