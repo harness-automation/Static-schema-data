@@ -1,0 +1,28 @@
+template:
+  name: Terragrunt_Apply_temp_ar7
+  identifier: Terragrunt_Apply_temp_ar7
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    timeout: 10m
+    type: TerragruntApply
+    spec:
+      configuration:
+        type: Inline
+        spec:
+          configFiles:
+            store:
+              type: Git
+              spec:
+                gitFetchType: Branch
+                connectorRef: <+input>
+                repoName: <+input>
+                branch: <+input>
+                folderPath: <+input>
+          moduleConfig:
+            terragruntRunType: RunModule
+            path: <+input>
+      provisionerIdentifier: <+input>
