@@ -1,8 +1,8 @@
 template:
   name: K8sdryrun
   type: Step
-  projectIdentifier: DoNotDelete_AmitSingh
-  orgIdentifier: default
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
   spec:
     type: K8sDryRun
     spec: {}
