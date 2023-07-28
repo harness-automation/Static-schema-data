@@ -1,6 +1,7 @@
 template:
-  name: TAS Route Mapping
-  identifier: TAS_Route_Mapping
+  name: Route Mapping
+  identifier: Route_Mapping
+  versionLabel: v1
   type: Step
   projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
   orgIdentifier: Ng_Pipelines_K8s_Organisations
