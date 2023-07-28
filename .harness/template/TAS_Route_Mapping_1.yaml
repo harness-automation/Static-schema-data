@@ -1,0 +1,15 @@
+template:
+  name: TAS Route Mapping
+  identifier: TAS_Route_Mapping
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: RouteMapping
+    timeout: 10m
+    spec:
+      appName: <+input>
+      routeType: Map
+      routes: <+input>
