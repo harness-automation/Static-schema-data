@@ -1,0 +1,42 @@
+template:
+  name: Verify
+  identifier: Verify
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: Verify
+    timeout: 2h
+    spec:
+      isMultiServicesOrEnvs: false
+      type: Auto
+      monitoredService:
+        type: Default
+        spec: {}
+      spec:
+        sensitivity: <+input>
+        duration: <+input>
+        deploymentTag: <+input>
+    failureStrategies:
+      - onFailure:
+          errors:
+            - Verification
+          action:
+            type: ManualIntervention
+            spec:
+              timeout: 2h
+              onTimeout:
+                action:
+                  type: StageRollback
+      - onFailure:
+          errors:
+            - Unknown
+          action:
+            type: ManualIntervention
+            spec:
+              timeout: 2h
+              onTimeout:
+                action:
+                  type: Ignore
