@@ -1,0 +1,13 @@
+template:
+  name: Serverless Lambda Deploy
+  identifier: Serverless_Lambda_Deploy
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: ServerlessAwsLambdaDeploy
+    timeout: 10m
+    spec:
+      commandOptions: ""
