@@ -1,0 +1,16 @@
+template:
+  name: BG App Setup
+  identifier: zzz
+  versionLabel: v1
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    timeout: 10m
+    type: BGAppSetup
+    spec:
+      tasInstanceCountType: FromManifest
+      existingVersionToKeep: 3
+      tempRoutes: <+input>
+      additionalRoutes: <+input>
