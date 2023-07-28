@@ -1,0 +1,16 @@
+template:
+  name: CloudFormation Delete Stack
+  identifier: CloudFormation_Delete_Stack
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: DeleteStack
+    timeout: 10m
+    spec:
+      configuration:
+        type: Inherited
+        spec:
+          provisionerIdentifier: <+input>
