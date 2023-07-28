@@ -1,0 +1,15 @@
+template:
+  name: Terragrunt_Destroy_TEMP_AR7
+  identifier: Terragrunt_Destroy_TEMP_AR7
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    timeout: 10m
+    type: TerragruntDestroy
+    spec:
+      provisionerIdentifier: <+input>
+      configuration:
+        type: InheritFromApply
