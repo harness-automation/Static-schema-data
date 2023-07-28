@@ -1,0 +1,12 @@
+template:
+  name: ECS Blue Green Rollback
+  identifier: ecs2
+  versionLabel: dd
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: EcsBlueGreenRollback
+    timeout: 10m
+    spec: {}
