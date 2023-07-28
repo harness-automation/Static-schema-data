@@ -1,0 +1,13 @@
+template:
+  name: Azure_Traffic_Shift_temp_ar7
+  identifier: Azure_Traffic_Shift_temp_ar7
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: AzureTrafficShift
+    timeout: 20m
+    spec:
+      traffic: <+input>
