@@ -1,6 +1,7 @@
 template:
   name: Configure Swap Target Groups
   identifier: ec3
+  versionLabel: v1
   type: Step
   projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
   orgIdentifier: Ng_Pipelines_K8s_Organisations
