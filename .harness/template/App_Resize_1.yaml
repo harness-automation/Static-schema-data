@@ -1,0 +1,21 @@
+template:
+  name: App Resize
+  identifier: App_Resize
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    timeout: 10m
+    type: AppResize
+    spec:
+      ignoreInstanceCountManifest: <+input>
+      newAppInstances:
+        type: Percentage
+        spec:
+          value: "100"
+      oldAppInstances:
+        type: Percentage
+        spec:
+          value: <+input>
