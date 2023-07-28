@@ -1,7 +1,7 @@
 template:
   name: Serverless Lambda Rollback
   identifier: Serverless_Lambda_Rollback
-
+  versionLabel: v1
   type: Step
   projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
   orgIdentifier: Ng_Pipelines_K8s_Organisations
