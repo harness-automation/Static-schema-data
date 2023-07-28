@@ -1,0 +1,11 @@
+template:
+  name: K8sCanaryDelete_1
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  spec:
+    type: K8sCanaryDelete
+    spec: {}
+    timeout: 10m
+  identifier: K8sCanaryDelete_1
+  versionLabel: "1"
