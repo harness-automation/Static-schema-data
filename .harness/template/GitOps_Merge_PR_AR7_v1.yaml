@@ -1,0 +1,14 @@
+template:
+  name: GitOps_Merge_PR_AR7
+  identifier: GitOps_Merge_PR_AR7
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: MergePR
+    timeout: 10m
+    spec:
+      deleteSourceBranch: false
+      variables: []
