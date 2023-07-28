@@ -1,0 +1,13 @@
+template:
+  name: Terragrunt_Rollback_temp_ar7
+  identifier: Terragrunt_Rollback_temp_ar7
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: TerragruntRollback
+    timeout: 10m
+    spec:
+      provisionerIdentifier: <+input>
