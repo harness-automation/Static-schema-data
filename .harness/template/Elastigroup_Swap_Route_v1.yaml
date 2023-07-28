@@ -1,0 +1,13 @@
+template:
+  name: Elastigroup Swap Route
+  identifier: Elastigroup_Swap_Route
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: ElastigroupSwapRoute
+    timeout: 10m
+    spec:
+      downsizeOldElastigroup: false
