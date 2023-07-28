@@ -1,0 +1,11 @@
+template:
+  name: AzureWebAppRollback_1
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  spec:
+    type: AzureWebAppRollback
+    spec: {}
+    timeout: 20m
+  identifier: AzureWebAppRollback_1
+  versionLabel: "1"
