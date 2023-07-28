@@ -1,0 +1,22 @@
+template:
+  name: Command
+  identifier: Command
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    timeout: 10m
+    type: Command
+    spec:
+      onDelegate: false
+      environmentVariables: []
+      outputVariables: []
+      commandUnits:
+        - identifier: a1
+          name: a1
+          type: Copy
+          spec:
+            sourceType: Artifact
+            destinationPath: <+input>
