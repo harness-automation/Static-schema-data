@@ -1,0 +1,26 @@
+template:
+  name: GitOps Sync AR7
+  identifier: GitOps_Sync_AR7
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: GitOpsSync
+    timeout: 10m
+    spec:
+      prune: false
+      dryRun: false
+      applyOnly: false
+      forceApply: false
+      applicationsList: []
+      retryStrategy: {}
+      retry: false
+      syncOptions:
+        skipSchemaValidation: false
+        autoCreateNamespace: false
+        pruneResourcesAtLast: false
+        applyOutOfSyncOnly: false
+        replaceResources: false
+        prunePropagationPolicy: foreground
