@@ -1,0 +1,32 @@
+template:
+  name: Elastigroup BG Stage Setup
+  identifier: Elastigroup_BG_Stage_Setup
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    timeout: 10m
+    type: ElastigroupBGStageSetup
+    spec:
+      name: <+input>
+      instances:
+        type: Fixed
+        spec:
+          desired: 1
+          max: <+input>
+          min: <+input>
+      connectedCloudProvider:
+        type: AWS
+        spec:
+          connectorRef: org.AWSASGConnectorForAutomationTest
+          region: us-east-1
+      loadBalancers:
+        - type: AWSLoadBalancerConfig
+          spec:
+            prodListenerPort: "80"
+            stageListenerPort: "80"
+            stageListenerRuleArn: arn:aws:elasticloadbalancing:us-east-1:806630305776:listener-rule/app/ecs-testing-lb/77e108d0aa17f664/82fe0270bff0affa/f0ee739b0614b6be
+            loadBalancer: ecs-testing-lb
+            prodListenerRuleArn: arn:aws:elasticloadbalancing:us-east-1:806630305776:listener-rule/app/ecs-testing-lb/77e108d0aa17f664/82fe0270bff0affa/f0ee739b0614b6be
