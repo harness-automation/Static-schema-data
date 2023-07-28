@@ -3,8 +3,9 @@ template:
   identifier: ECS_Rolling_Rollback
   versionLabel: "1"
   type: Step
-  projectIdentifier: TestMayankPrakhar
-  orgIdentifier: default
+    projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+    orgIdentifier: Ng_Pipelines_K8s_Organisations
+
   tags: {}
   spec:
     type: EcsRollingRollback
