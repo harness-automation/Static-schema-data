@@ -1,0 +1,14 @@
+template:
+  name: Configure Swap Target Groups
+  identifier: ec3
+  versionLabel: ddddd
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: EcsBlueGreenSwapTargetGroups
+    timeout: 10m
+    spec:
+      doNotDownsizeOldService: false
+      downsizeOldServiceDelayInSecs: 10
