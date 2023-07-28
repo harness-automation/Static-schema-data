@@ -409,6 +409,12 @@ pipeline:
                       type: DeployCloudFunctionGenOne
                       spec:
                         updateFieldMask: <+input>
+              - step:
+                  name: Cloud Function Rollback Gen One
+                  identifier: Cloud_Function_Rollback_Gen_One
+                  template:
+                    templateRef: Cloud_Function_Rollback_Gen_One
+                    versionLabel: "1"
             rollbackSteps:
               - step:
                   name: Rollback Cloud Function
