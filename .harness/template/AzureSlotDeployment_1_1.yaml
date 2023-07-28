@@ -1,0 +1,13 @@
+template:
+  name: AzureSlotDeployment_1
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  spec:
+    type: AzureSlotDeployment
+    spec:
+      webApp: <+input>
+      deploymentSlot: <+input>
+    timeout: 20m
+  identifier: AzureSlotDeployment_1
+  versionLabel: "1"
