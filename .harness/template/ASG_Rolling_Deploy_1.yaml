@@ -1,0 +1,14 @@
+template:
+  name: ASG_Rolling_Deploy_ar7
+  identifier: ASG_Rolling_Deploy
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  tags: {}
+  spec:
+    timeout: <+input>
+    type: AsgRollingDeploy
+    spec:
+      useAlreadyRunningInstances: false
+      skipMatching: true
