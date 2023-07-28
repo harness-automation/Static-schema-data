@@ -1,0 +1,23 @@
+template:
+  name: Terraform Cloud Run
+  identifier: Terraform_Cloud_Run
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    timeout: 10m
+    type: TerraformCloudRun
+    spec:
+      runType: PlanAndApply
+      runMessage: <+input>
+      spec:
+        organization: <+input>
+        workspace: <+input>
+        variables: []
+        discardPendingRuns: <+input>
+        targets: []
+        connectorRef: <+input>
+        provisionerIdentifier: <+input>
+        planType: Apply
