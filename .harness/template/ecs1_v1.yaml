@@ -1,0 +1,12 @@
+template:
+  name: ECS Canary Delete
+  identifier: ecs1
+  versionLabel: v1
+  type: Step
+  projectIdentifier: TestMayankPrakhar
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: EcsCanaryDelete
+    timeout: 10m
+    spec: {}
