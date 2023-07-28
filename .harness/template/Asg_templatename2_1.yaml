@@ -1,0 +1,12 @@
+template:
+  name: Asg_blue_green_rollback_ar7
+  identifier: Asg_templatename2
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: DoNotDelete_AmitSingh
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: AsgBlueGreenRollback
+    timeout: 10m
+    spec: {}
