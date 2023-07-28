@@ -3,8 +3,8 @@ template:
   identifier: ASG_Rolling_Rollback
   versionLabel: "1"
   type: Step
-  projectIdentifier: DoNotDelete_AmitSingh
-  orgIdentifier: default
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
   tags: {}
   spec:
     type: AsgRollingRollback
