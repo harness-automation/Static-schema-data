@@ -1040,6 +1040,12 @@ pipeline:
                   template:
                     templateRef: k8s_template
                     versionLabel: "1"
+              - step:
+                  name: K8s Rollout Rollback
+                  identifier: K8s_Rollout_Rollback
+                  template:
+                    templateRef: K8sRollingRollback_1
+                    versionLabel: "1"
             rollbackSteps: []
         tags: {}
         failureStrategies:
