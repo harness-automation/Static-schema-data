@@ -1,0 +1,12 @@
+template:
+  name: Aws Lambda Deploy
+  identifier: Aws_Lambda_Deploy
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: AwsLambdaDeploy
+    timeout: 10m
+    spec: {}
