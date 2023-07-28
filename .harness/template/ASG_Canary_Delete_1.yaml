@@ -4,7 +4,7 @@ template:
   versionLabel: "1"
   type: Step
   projectIdentifier: DoNotDelete_AmitSingh
-  orgIdentifier: default
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
   tags: {}
   spec:
     type: AsgCanaryDelete
