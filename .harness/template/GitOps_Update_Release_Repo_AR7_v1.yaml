@@ -1,0 +1,13 @@
+template:
+  name: GitOps_Update_Release_Repo_AR7
+  identifier: GitOps_Update_Release_Repo_AR7
+  versionLabel: v1
+  type: Step
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  tags: {}
+  spec:
+    type: GitOpsUpdateReleaseRepo
+    timeout: 10m
+    spec:
+      variables: []
