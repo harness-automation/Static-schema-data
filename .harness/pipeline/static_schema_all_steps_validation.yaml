@@ -6,7 +6,7 @@ pipeline:
   tags: {}
   stages:
     - stage:
-        name: ASG
+        name: ASG Template
         identifier: ASG
         description: ""
         type: Deployment
