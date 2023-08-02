@@ -1408,3 +1408,58 @@ pipeline:
                 - AllErrors
               action:
                 type: Ignore
+    - stage:
+        name: Terraform Cloud
+        identifier: Terraform_Cloud
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: <+input>
+            serviceInputs: <+input>
+          environment:
+            environmentRef: <+input>
+            deployToAll: false
+            environmentInputs: <+input>
+            serviceOverrideInputs: <+input>
+            infrastructureDefinitions: <+input>
+          execution:
+            steps:
+              - step:
+                  name: Terraform Cloud Rollback
+                  identifier: Terraform_Cloud_Rollback
+                  template:
+                    templateRef: Terraform_Cloud_Rollback
+                    versionLabel: v1
+                    templateInputs:
+                      type: TerraformCloudRollback
+                      spec:
+                        provisionerIdentifier: <+input>
+                        discardPendingRuns: <+input>
+                        runMessage: <+input>
+                        overridePolicies: <+input>
+              - step:
+                  name: Terraform Cloud Run
+                  identifier: Terraform_Cloud_Run
+                  template:
+                    templateRef: Terraform_Cloud_Run
+                    versionLabel: v1
+                    templateInputs:
+                      type: TerraformCloudRun
+                      spec:
+                        runMessage: <+input>
+                        spec:
+                          organization: <+input>
+                          workspace: <+input>
+                          discardPendingRuns: <+input>
+                          connectorRef: <+input>
+                          provisionerIdentifier: <+input>
+            rollbackSteps: []
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: Ignore
