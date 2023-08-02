@@ -1495,3 +1495,41 @@ pipeline:
                 - AllErrors
               action:
                 type: Ignore
+    - stage:
+        name: K8s Helm
+        identifier: K8s_Helm
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: NativeHelm
+          execution:
+            steps:
+              - step:
+                  name: Helm Deploy
+                  identifier: Helm_Deploy
+                  template:
+                    templateRef: Helm_Deploy
+                    versionLabel: v1
+              - step:
+                  name: Helm Rollback
+                  identifier: Helm_Rollback
+                  template:
+                    templateRef: Helm_Rollback
+                    versionLabel: v1
+            rollbackSteps: []
+          service:
+            serviceRef: <+input>
+            serviceInputs: <+input>
+          environment:
+            environmentRef: <+input>
+            deployToAll: false
+            environmentInputs: <+input>
+            serviceOverrideInputs: <+input>
+            infrastructureDefinitions: <+input>
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: Ignore
