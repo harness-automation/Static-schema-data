@@ -1267,3 +1267,144 @@ pipeline:
                 - AllErrors
               action:
                 type: Ignore
+    - stage:
+        name: Misc
+        identifier: Misc
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: <+input>
+            serviceInputs: <+input>
+          environment:
+            environmentRef: <+input>
+            deployToAll: false
+            environmentInputs: <+input>
+            serviceOverrideInputs: <+input>
+            infrastructureDefinitions: <+input>
+          execution:
+            steps:
+              - step:
+                  name: HTTP Step
+                  identifier: HTTP_Step
+                  template:
+                    templateRef: http
+                    versionLabel: v1
+                    templateInputs:
+                      type: Http
+                      spec:
+                        url: <+input>
+                        requestBody: <+input>
+              - step:
+                  name: Email
+                  identifier: Email
+                  template:
+                    templateRef: Email
+                    versionLabel: v1
+                    templateInputs:
+                      type: Email
+                      spec:
+                        to: <+input>
+                        cc: <+input>
+                        subject: <+input>
+                        body: <+input>
+              - step:
+                  name: Wait
+                  identifier: Wait
+                  template:
+                    templateRef: Wait
+                    versionLabel: v1
+              - step:
+                  name: Policy
+                  identifier: Policy
+                  template:
+                    templateRef: Policy
+                    versionLabel: v1
+                    templateInputs:
+                      type: Policy
+                      spec:
+                        type: Custom
+                        policySets: <+input>
+                        policySpec:
+                          payload: <+input>
+              - step:
+                  name: ServiceNow Create
+                  identifier: ServiceNow_Create
+                  template:
+                    templateRef: ServiceNow_Create
+                    versionLabel: v1
+                    templateInputs:
+                      type: ServiceNowCreate
+                      spec:
+                        connectorRef: <+input>
+                        ticketType: <+input>
+              - step:
+                  name: ServiceNow Update
+                  identifier: ServiceNow_Update
+                  template:
+                    templateRef: ServiceNow_Update
+                    versionLabel: v1
+                    templateInputs:
+                      type: ServiceNowUpdate
+                      spec:
+                        connectorRef: <+input>
+                        ticketType: <+input>
+                        ticketNumber: <+input>
+              - step:
+                  name: ServiceNow ImportSet
+                  identifier: ServiceNow_ImportSet
+                  template:
+                    templateRef: ServiceNow_ImportSet
+                    versionLabel: v1
+                    templateInputs:
+                      type: ServiceNowImportSet
+                      spec:
+                        connectorRef: <+input>
+                        stagingTableName: <+input>
+                        importData:
+                          type: Json
+                          spec:
+                            jsonBody: <+input>
+              - step:
+                  name: Verify
+                  identifier: Verify
+                  template:
+                    templateRef: Verify
+                    versionLabel: v1
+                    templateInputs:
+                      type: Verify
+                      spec:
+                        type: Auto
+                        spec:
+                          sensitivity: <+input>
+                          duration: <+input>
+                          deploymentTag: <+input>
+              - step:
+                  name: Queue
+                  identifier: Queue
+                  template:
+                    templateRef: Queue
+                    versionLabel: v1
+                    templateInputs:
+                      type: Queue
+                      spec:
+                        key: <+input>
+              - step:
+                  name: Barrier
+                  identifier: Barrier
+                  template:
+                    templateRef: Barrier
+                    versionLabel: v1
+                    templateInputs:
+                      type: Barrier
+                      spec:
+                        barrierRef: <+input>
+            rollbackSteps: []
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: Ignore
