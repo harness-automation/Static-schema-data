@@ -1185,3 +1185,85 @@ pipeline:
                     - AllErrors
                   action:
                     type: Ignore
+    - stage:
+        name: Azure ARM
+        identifier: Azure_ARM
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: AzureWebApp
+          service:
+            serviceRef: <+input>
+            serviceInputs: <+input>
+          environment:
+            environmentRef: <+input>
+            deployToAll: false
+            environmentInputs: <+input>
+            serviceOverrideInputs: <+input>
+            infrastructureDefinitions: <+input>
+          execution:
+            steps:
+              - step:
+                  name: Create Azure ARM Resources
+                  identifier: Create_Azure_ARM_Resources
+                  template:
+                    templateRef: Create_Azure_ARM_Resources
+                    versionLabel: v1
+                    templateInputs:
+                      type: AzureCreateARMResource
+                      spec:
+                        provisionerIdentifier: <+input>
+                        configuration:
+                          connectorRef: <+input>
+                          template:
+                            store:
+                              type: Git
+                              spec:
+                                paths: <+input>
+                          scope:
+                            type: ResourceGroup
+                            spec:
+                              subscription: <+input>
+                              resourceGroup: <+input>
+                          parameters:
+                            store:
+                              type: Git
+                              spec:
+                                branch: <+input>
+                                paths: <+input>
+              - step:
+                  name: Create Azure BP Resources
+                  identifier: Create_Azure_BP_Resources
+                  template:
+                    templateRef: Create_Azure_BP_Resources
+                    versionLabel: v1
+                    templateInputs:
+                      type: AzureCreateBPResource
+                      spec:
+                        configuration:
+                          connectorRef: <+input>
+                          assignmentName: <+input>
+                          template:
+                            store:
+                              type: Git
+                              spec:
+                                folderPath: <+input>
+                                branch: <+input>
+              - step:
+                  name: Rollback Azure ARM Resources
+                  identifier: Rollback_Azure_ARM_Resources
+                  template:
+                    templateRef: Rollback_Azure_ARM_Resources
+                    versionLabel: v1
+                    templateInputs:
+                      type: AzureARMRollback
+                      spec:
+                        provisionerIdentifier: <+input>
+            rollbackSteps: []
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: Ignore
