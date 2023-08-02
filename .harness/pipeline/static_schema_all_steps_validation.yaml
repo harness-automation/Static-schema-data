@@ -1463,3 +1463,35 @@ pipeline:
                 - AllErrors
               action:
                 type: Ignore
+    - stage:
+        name: SSH WinRM
+        identifier: SSH_WinRM
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: <+input>
+            serviceInputs: <+input>
+          environment:
+            environmentRef: <+input>
+            deployToAll: false
+            environmentInputs: <+input>
+            serviceOverrideInputs: <+input>
+            infrastructureDefinitions: <+input>
+          execution:
+            steps:
+              - step:
+                  name: Shell Script Provision
+                  identifier: Shell_Script_Provision
+                  template:
+                    templateRef: Shell_Script_Provision
+                    versionLabel: V1
+            rollbackSteps: []
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: Ignore
