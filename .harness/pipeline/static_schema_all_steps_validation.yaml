@@ -1,5 +1,5 @@
 pipeline:
-  name: static schema all steps validation check
+  name: static schema all steps validation
   identifier: static_schema_all_steps_validation
   projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
   orgIdentifier: Ng_Pipelines_K8s_Organisations
