@@ -14,4 +14,4 @@ template:
         store:
           type: Harness
           spec:
-            files: <+input>
+            files: fixed
