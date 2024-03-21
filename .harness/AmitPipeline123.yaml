@@ -1,5 +1,5 @@
 pipeline:
-  name: AmitPipeline
+  name: AmitPipelineTest456
   identifier: AmitTest123
   projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
   orgIdentifier: Ng_Pipelines_K8s_Organisations
