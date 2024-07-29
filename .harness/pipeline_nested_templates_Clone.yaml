@@ -1,0 +1,1571 @@
+---
+pipeline:
+  projectIdentifier: "DoNotDelete_CD_Static_Schema_Signoff"
+  orgIdentifier: "Ng_Pipelines_K8s_Organisations"
+  tags: {}
+  stages:
+  - stage:
+      name: "ASG Template"
+      identifier: "ASG"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Asg"
+        service:
+          serviceRef: "service1"
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions:
+          - identifier: "non_prod"
+            inputs:
+              identifier: "non_prod"
+              type: "Asg"
+              spec:
+                connectorRef: "<+input>"
+                region: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "asg_blue_green_swap_service_"
+              identifier: "asg_blue_green_swap_service_"
+              template:
+                templateRef: "asg_blue_green_swap_service_ar7"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "AsgBlueGreenSwapService"
+                  spec:
+                    downsizeOldAsg: "<+input>"
+          - step:
+              name: "ASG Canary Delete"
+              identifier: "ASG_Canary_Delete"
+              template:
+                templateRef: "ASG_Canary_Delete"
+                versionLabel: "1"
+          - step:
+              name: "ASG Canary Deploy"
+              identifier: "ASG_Canary_Deploy"
+              template:
+                templateRef: "Asg_template1"
+                versionLabel: "1"
+                templateInputs:
+                  type: "AsgCanaryDeploy"
+                  timeout: "<+input>"
+                  spec:
+                    instanceSelection:
+                      type: "Count"
+                      spec:
+                        count: "<+input>"
+          - step:
+              name: "ASG Blue Green Rollback"
+              identifier: "ASG_Blue_Green_Rollback"
+              template:
+                templateRef: "Asg_templatename2"
+                versionLabel: "1"
+          - step:
+              name: "ASG Rolling Rollback"
+              identifier: "ASG_Rolling_Rollback"
+              template:
+                templateRef: "ASG_Rolling_Rollback"
+                versionLabel: "1"
+          - step:
+              name: "ASG Rolling Deploy"
+              identifier: "ASG_Rolling_Deploy"
+              template:
+                templateRef: "ASG_Rolling_Deploy"
+                versionLabel: "1"
+                templateInputs:
+                  type: "AsgRollingDeploy"
+                  timeout: "<+input>"
+          - step:
+              name: "ASG Blue Green Deploy Step"
+              identifier: "ASG_Blue_Green_Deploy_Step"
+              template:
+                templateRef: "ASG_Blue_Green_Deploy1"
+                versionLabel: "1"
+                templateInputs:
+                  type: "AsgBlueGreenDeploy"
+                  timeout: "<+input>"
+                  spec:
+                    loadBalancer: "<+input>"
+                    prodListener: "<+input>"
+                    prodListenerRuleArn: "<+input>"
+                    stageListener: "<+input>"
+                    stageListenerRuleArn: "<+input>"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "MarkAsSuccess"
+  - stage:
+      name: "GitOps"
+      identifier: "GitOps"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Kubernetes"
+        gitOpsEnabled: true
+        service:
+          serviceRef: "gitops_service_ar7"
+        execution:
+          steps:
+          - step:
+              type: "GitOpsUpdateReleaseRepo"
+              name: "Update Release Repo"
+              identifier: "updateReleaseRepo"
+              timeout: "10m"
+              spec: {}
+          - step:
+              type: "MergePR"
+              name: "Merge PR"
+              identifier: "mergePR"
+              spec:
+                deleteSourceBranch: true
+              timeout: "10m"
+          - step:
+              type: "GitOpsFetchLinkedApps"
+              name: "Fetch Linked Apps"
+              identifier: "fetchLinkedApps"
+              timeout: "10m"
+              spec: {}
+          - step:
+              name: "Merge PR"
+              identifier: "Merge_PR"
+              template:
+                templateRef: "GitOps_Merge_PR_AR7"
+                versionLabel: "v1"
+          - step:
+              name: "Fetch Linked Apps"
+              identifier: "Fetch_Linked_Apps"
+              template:
+                templateRef: "GitOps_Fetch_Linked_Apps_temp_ar7"
+                versionLabel: "v1"
+          - step:
+              name: "Update ReleaseRepo"
+              identifier: "Update_ReleaseRepo"
+              template:
+                templateRef: "GitOps_Update_Release_Repo_AR7"
+                versionLabel: "v1"
+          - step:
+              name: "GitOpsSync"
+              identifier: "GitOpsSync"
+              template:
+                templateRef: "GitOps_Sync_AR7"
+                versionLabel: "v1"
+                gitBranch: "main"
+          rollbackSteps: []
+        environment:
+          environmentRef: "test_env"
+          deployToAll: true
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "StageRollback"
+      gitOpsEnabled: true
+  - stage:
+      name: "Terragrunt"
+      identifier: "Terragrunt"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Kubernetes"
+        service:
+          serviceRef: "k8s_svc"
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions:
+          - identifier: "dummy_infra"
+            inputs:
+              identifier: "dummy_infra"
+              type: "KubernetesDirect"
+              spec:
+                connectorRef: "<+input>"
+                namespace: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Terragrunt Plan"
+              identifier: "Terragrunt_Plan"
+              template:
+                templateRef: "terragrunt_temp_ar7"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerragruntPlan"
+                  spec:
+                    configuration:
+                      configFiles:
+                        store:
+                          type: "Git"
+                          spec:
+                            connectorRef: "<+input>"
+                            repoName: "<+input>"
+                            branch: "<+input>"
+                            folderPath: "<+input>"
+                      moduleConfig:
+                        path: "<+input>"
+                      secretManagerRef: "<+input>"
+                    provisionerIdentifier: "<+input>"
+          - step:
+              name: "Terragrunt Rollback"
+              identifier: "Terragrunt_Rollback"
+              template:
+                templateRef: "Terragrunt_Rollback_temp_ar7"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerragruntRollback"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+          - step:
+              name: "Terragrunt Destroy"
+              identifier: "Terragrunt_Destroy"
+              template:
+                templateRef: "Terragrunt_Destroy_TEMP_AR7"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerragruntDestroy"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+          - step:
+              name: "Terragrunt Apply"
+              identifier: "Terragrunt_Apply"
+              template:
+                templateRef: "Terragrunt_Apply_temp_ar7"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerragruntApply"
+                  spec:
+                    configuration:
+                      type: "Inline"
+                      spec:
+                        configFiles:
+                          store:
+                            type: "Git"
+                            spec:
+                              connectorRef: "<+input>"
+                              repoName: "<+input>"
+                              branch: "<+input>"
+                              folderPath: "<+input>"
+                        moduleConfig:
+                          path: "<+input>"
+                    provisionerIdentifier: "<+input>"
+          rollbackSteps: []
+      tags: {}
+      variables: []
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "Azure_web_app"
+      identifier: "Azure_web_app"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "AzureWebApp"
+        service:
+          serviceRef: "azure_webApp_services"
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions:
+          - identifier: "azure_webApp_infra"
+            inputs:
+              identifier: "azure_webApp_infra"
+              type: "AzureWebApp"
+              spec:
+                connectorRef: "<+input>"
+                subscriptionId: "<+input>"
+                resourceGroup: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Azure Traffic Shift"
+              identifier: "Azure_Traffic_Shift"
+              template:
+                templateRef: "Azure_Traffic_Shift_temp_ar7"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "AzureTrafficShift"
+                  spec:
+                    traffic: "<+input>"
+          - step:
+              name: "Azure Swap Slot"
+              identifier: "Azure_Swap_Slot"
+              template:
+                templateRef: "Azure_Swap_Slot_temp_ar7"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "AzureSwapSlot"
+                  spec:
+                    targetSlot: "<+input>"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "GCF Gen2"
+      identifier: "GCF_Gen2"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "GoogleCloudFunctions"
+        deploymentMetadata:
+          environmentType: "GenTwo"
+        service:
+          serviceRef: "GCF_srv"
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions:
+          - identifier: "gcf_infra"
+            inputs:
+              identifier: "gcf_infra"
+              type: "GoogleCloudFunctions"
+              spec:
+                connectorRef: "<+input>"
+                project: "<+input>"
+                region: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Deploy Cloud Function"
+              identifier: "Deploy_Cloud_Function"
+              template:
+                templateRef: "GCF"
+                versionLabel: "v1"
+                gitBranch: "main"
+                templateInputs:
+                  type: "DeployCloudFunction"
+                  spec:
+                    updateFieldMask: "<+input>"
+          - step:
+              name: "Cloud Function Rollback"
+              identifier: "Cloud_Function_Rollback"
+              template:
+                templateRef: "GCF_Rollback"
+                versionLabel: "v1"
+                gitBranch: "main"
+          - step:
+              name: "Deploy Cloud Function With No Traffic"
+              identifier: "Deploy_Cloud_Function_With_No_Traffic"
+              template:
+                templateRef: "Google_Function_Deploy_With_No_Traffic"
+                versionLabel: "v1"
+                gitBranch: "main"
+                templateInputs:
+                  type: "DeployCloudFunctionWithNoTraffic"
+                  spec:
+                    updateFieldMask: "<+input>"
+          - step:
+              name: "Cloud Function Traffic Shift"
+              identifier: "Cloud_Function_Traffic_Shift"
+              template:
+                templateRef: "Google_Function_Traffic_Shift"
+                versionLabel: "v1"
+                gitBranch: "main"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "GCF Gen1"
+      identifier: "GCF_Gen1"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "GoogleCloudFunctions"
+        deploymentMetadata:
+          environmentType: "GenOne"
+        service:
+          serviceRef: "GCF_gen1_srv"
+        execution:
+          steps:
+          - step:
+              name: "Deploy Cloud Function Gen One"
+              identifier: "Deploy_Cloud_Function_Gen_One"
+              template:
+                templateRef: "GCF_Deploy_Cloud_Function_Gen_One"
+                versionLabel: "v1"
+                gitBranch: "main"
+                templateInputs:
+                  type: "DeployCloudFunctionGenOne"
+                  spec:
+                    updateFieldMask: "<+input>"
+          - step:
+              name: "Cloud Function Rollback Gen One"
+              identifier: "Cloud_Function_Rollback_Gen_One"
+              template:
+                templateRef: "Cloud_Function_Rollback_Gen_One"
+                versionLabel: "1"
+          rollbackSteps:
+          - step:
+              name: "Rollback Cloud Function"
+              identifier: "cloudFunctionRollback"
+              type: "RollbackCloudFunctionGenOne"
+              timeout: "10m"
+              spec: {}
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions:
+          - identifier: "gcf_infra"
+            inputs:
+              identifier: "gcf_infra"
+              type: "GoogleCloudFunctions"
+              spec:
+                connectorRef: "<+input>"
+                project: "<+input>"
+                region: "<+input>"
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "AWS LAMBDA"
+      identifier: "AWS_LAMBDA"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "AwsLambda"
+        service:
+          serviceRef: "AWS_LAMBDA_SRV"
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions:
+          - identifier: "AWS_LAMBDA_Infra"
+            inputs:
+              identifier: "AWS_LAMBDA_Infra"
+              type: "AwsLambda"
+              spec:
+                connectorRef: "<+input>"
+                region: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "AWS Lambda Deploy"
+              identifier: "AWS_Lambda_Deploy"
+              template:
+                templateRef: "Aws_Lambda_Deploy"
+                versionLabel: "v1"
+          - step:
+              name: "AWS Lambda Deploy Step"
+              identifier: "AWS_Lambda_Deploy_Step"
+              template:
+                templateRef: "Aws_Lambda_Rollback"
+                versionLabel: "v1"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "Spotinst"
+      identifier: "Spotinst"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Elastigroup"
+        service:
+          serviceRef: "Spotinst_srv"
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Elastigroup Blue Green Setup"
+              identifier: "Elastigroup_Blue_Green_Setup"
+              template:
+                templateRef: "Elastigroup_BG_Stage_Setup"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "ElastigroupBGStageSetup"
+                  spec:
+                    name: "<+input>"
+                    instances:
+                      type: "Fixed"
+                      spec:
+                        max: "<+input>"
+                        min: "<+input>"
+          - step:
+              name: "Elastigroup Deploy"
+              identifier: "Elastigroup_Deploy"
+              template:
+                templateRef: "Elastigroup_Deploy"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "ElastigroupDeploy"
+                  spec:
+                    newService:
+                      type: "Count"
+                      spec:
+                        count: "<+input>"
+          - step:
+              name: "Elastigroup Rollback"
+              identifier: "Elastigroup_Rollback"
+              template:
+                templateRef: "Elastigroup_Rollback"
+                versionLabel: "v1"
+                gitBranch: "main"
+          - step:
+              name: "Elastigroup Setup"
+              identifier: "Elastigroup_Setup"
+              template:
+                templateRef: "Elastigroup_Setup"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "ElastigroupSetup"
+                  spec:
+                    name: "<+input>"
+                    instances:
+                      type: "Fixed"
+                      spec:
+                        desired: "<+input>"
+                        max: "<+input>"
+                        min: "<+input>"
+          - step:
+              name: "Elastigroup Swap Route"
+              identifier: "Elastigroup_Swap_Route"
+              template:
+                templateRef: "Elastigroup_Swap_Route"
+                versionLabel: "v1"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors: []
+          action:
+            type: "Ignore"
+  - stage:
+      name: "Terraform"
+      identifier: "Terraform"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Kubernetes"
+        service:
+          serviceRef: "k8s_svc"
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions:
+          - identifier: "dummy_infra"
+            inputs:
+              identifier: "dummy_infra"
+              type: "KubernetesDirect"
+              spec:
+                connectorRef: "<+input>"
+                namespace: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Terraform Apply"
+              identifier: "Terraform_Apply"
+              template:
+                templateRef: "Terraform_Apply"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerraformApply"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+                    configuration:
+                      type: "Inline"
+                      spec:
+                        configFiles:
+                          store:
+                            type: "Github"
+                            spec:
+                              connectorRef: "<+input>"
+                              repoName: "<+input>"
+                              branch: "<+input>"
+                              folderPath: "<+input>"
+          - step:
+              name: "Terraform Rollback"
+              identifier: "Terraform_Rollback"
+              template:
+                templateRef: "Terraform_Rollback"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerraformRollback"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+          - step:
+              name: "Terraform Plan Apply"
+              identifier: "Terraform_Plan_Apply"
+              template:
+                templateRef: "Terraform_Plan_Apply"
+                versionLabel: "1"
+                templateInputs:
+                  type: "TerraformPlan"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+                    configuration:
+                      configFiles:
+                        store:
+                          type: "Git"
+                          spec:
+                            connectorRef: "<+input>"
+                            repoName: "<+input>"
+                            folderPath: "<+input>"
+                            branch: "<+input>"
+                      secretManagerRef: "<+input>"
+          - step:
+              name: "Terraform Plan Destroy"
+              identifier: "Terraform_Plan_Destroy"
+              template:
+                templateRef: "Terraform_Plan_Destroy"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerraformPlan"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+                    configuration:
+                      configFiles:
+                        store:
+                          type: "Github"
+                          spec:
+                            connectorRef: "<+input>"
+                            repoName: "<+input>"
+                            branch: "<+input>"
+                            folderPath: "<+input>"
+                      secretManagerRef: "<+input>"
+          - step:
+              name: "Terraform Destroy"
+              identifier: "Terraform_Destroy"
+              template:
+                templateRef: "Terraform_Destroy"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerraformDestroy"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+                    configuration:
+                      type: "Inline"
+                      spec:
+                        configFiles:
+                          store:
+                            type: "Github"
+                            spec:
+                              connectorRef: "<+input>"
+                              repoName: "<+input>"
+                              branch: "<+input>"
+                              folderPath: "<+input>"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "Serverless Lambda"
+      identifier: "Serverless_Lambda"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "ServerlessAwsLambda"
+        execution:
+          steps:
+          - step:
+              name: "Serverless Lambda"
+              identifier: "Serverless_Lambda"
+              template:
+                templateRef: "Serverless_Lambda_Deploy"
+                versionLabel: "v1"
+                gitBranch: "main"
+          rollbackSteps:
+          - step:
+              name: "Serverless Lambda Rollback Step"
+              identifier: "Serverless_Lambda_Rollback_Step"
+              template:
+                templateRef: "Serverless_Lambda_Rollback"
+                versionLabel: "v1"
+                gitBranch: "main"
+        service:
+          serviceRef: "<+input>"
+          serviceInputs: "<+input>"
+        environment:
+          environmentRef: "<+input>"
+          deployToAll: false
+          environmentInputs: "<+input>"
+          serviceOverrideInputs: "<+input>"
+          infrastructureDefinitions: "<+input>"
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - parallel:
+    - stage:
+        name: "TAS"
+        identifier: "TAS"
+        description: ""
+        type: "Deployment"
+        spec:
+          deploymentType: "TAS"
+          service:
+            serviceRef: "<+input>"
+            serviceInputs: "<+input>"
+          environment:
+            environmentRef: "<+input>"
+            deployToAll: false
+            environmentInputs: "<+input>"
+            serviceOverrideInputs: "<+input>"
+            infrastructureDefinitions: "<+input>"
+          execution:
+            steps:
+            - step:
+                name: "Canary App Setup"
+                identifier: "Canary_App_Setup"
+                template:
+                  templateRef: "Canary_App_Setup"
+                  versionLabel: "1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "CanaryAppSetup"
+                    spec:
+                      additionalRoutes: "<+input>"
+            - step:
+                name: "App Resize"
+                identifier: "App_Resize"
+                template:
+                  templateRef: "App_Resize"
+                  versionLabel: "1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "AppResize"
+                    spec:
+                      ignoreInstanceCountManifest: "<+input>"
+                      oldAppInstances:
+                        type: "Percentage"
+                        spec:
+                          value: "<+input>"
+            - step:
+                name: "Swap Routes"
+                identifier: "Swap_Routes"
+                template:
+                  templateRef: "Swap_Routes_2"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "SwapRoutes"
+                    spec:
+                      downSizeOldApplication: "<+input>"
+            rollbackSteps:
+            - step:
+                name: "Swap Rollback"
+                identifier: "Swap_Rollback"
+                template:
+                  templateRef: "Swap_Rollback"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+        tags: {}
+        failureStrategies:
+        - onFailure:
+            errors:
+            - "AllErrors"
+            action:
+              type: "Ignore"
+    - stage:
+        name: "TAS Basic App"
+        identifier: "TAS_Basic_App"
+        description: ""
+        type: "Deployment"
+        spec:
+          deploymentType: "TAS"
+          service:
+            serviceRef: "<+input>"
+            serviceInputs: "<+input>"
+          environment:
+            environmentRef: "<+input>"
+            deployToAll: false
+            environmentInputs: "<+input>"
+            serviceOverrideInputs: "<+input>"
+            infrastructureDefinitions: "<+input>"
+          execution:
+            steps:
+            - step:
+                name: "Basic App Setup"
+                identifier: "Basic_App_Setup"
+                template:
+                  templateRef: "Basic_App_Setup"
+                  versionLabel: "1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "BasicAppSetup"
+                    spec:
+                      additionalRoutes: "<+input>"
+            - step:
+                name: "Tanzu Command"
+                identifier: "Tanzu_Command"
+                template:
+                  templateRef: "Tanzu_Command"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "TanzuCommand"
+                    timeout: "<+input>"
+                    spec:
+                      script:
+                        store:
+                          type: "Harness"
+                          spec:
+                            files: "<+input>"
+            - step:
+                name: "Route Mapping"
+                identifier: "Route_Mapping"
+                template:
+                  templateRef: "Route_Mapping"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "RouteMapping"
+                    spec:
+                      appName: "<+input>"
+                      routes: "<+input>"
+            rollbackSteps:
+            - step:
+                name: "App Rollback"
+                identifier: "App_Rollback"
+                template:
+                  templateRef: "App_Rollback"
+                  versionLabel: "1"
+                  gitBranch: "main"
+        tags: {}
+        failureStrategies:
+        - onFailure:
+            errors:
+            - "AllErrors"
+            action:
+              type: "Ignore"
+    - stage:
+        name: "BG App Setup"
+        identifier: "BG_App_Setup"
+        description: ""
+        type: "Deployment"
+        spec:
+          deploymentType: "TAS"
+          service:
+            serviceRef: "<+input>"
+            serviceInputs: "<+input>"
+          environment:
+            environmentRef: "<+input>"
+            deployToAll: false
+            environmentInputs: "<+input>"
+            serviceOverrideInputs: "<+input>"
+            infrastructureDefinitions: "<+input>"
+          execution:
+            steps:
+            - step:
+                name: "BG App Setup"
+                identifier: "BG_App_Setup"
+                template:
+                  templateRef: "zzz"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "BGAppSetup"
+                    spec:
+                      tempRoutes: "<+input>"
+                      additionalRoutes: "<+input>"
+            rollbackSteps: []
+        tags: {}
+        failureStrategies:
+        - onFailure:
+            errors:
+            - "AllErrors"
+            action:
+              type: "Ignore"
+    - stage:
+        name: "TAS Rolling Deploy"
+        identifier: "TAS_Rolling_Deploy"
+        description: ""
+        type: "Deployment"
+        spec:
+          deploymentType: "TAS"
+          service:
+            serviceRef: "<+input>"
+            serviceInputs: "<+input>"
+          environment:
+            environmentRef: "<+input>"
+            deployToAll: false
+            environmentInputs: "<+input>"
+            serviceOverrideInputs: "<+input>"
+            infrastructureDefinitions: "<+input>"
+          execution:
+            steps:
+            - step:
+                name: "Rolling Deployment"
+                identifier: "Rolling_Deployment"
+                template:
+                  templateRef: "Rolling_Deploy"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "TasRollingDeploy"
+                    spec:
+                      additionalRoutes: "<+input>"
+            rollbackSteps:
+            - step:
+                name: "Rolling Rollback"
+                identifier: "Rolling_Rollback"
+                template:
+                  templateRef: "Rolling_Rollback"
+                  versionLabel: "1"
+                  gitBranch: "main"
+        tags: {}
+        failureStrategies:
+        - onFailure:
+            errors:
+            - "AllErrors"
+            action:
+              type: "Ignore"
+  - stage:
+      name: "K8s"
+      identifier: "K8s"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Kubernetes"
+        service:
+          serviceRef: "k8s_svc"
+        environment:
+          environmentRef: "test_env"
+          deployToAll: false
+          infrastructureDefinitions:
+          - identifier: "dummy_infra"
+            inputs:
+              identifier: "dummy_infra"
+              type: "KubernetesDirect"
+              spec:
+                connectorRef: "<+input>"
+                namespace: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "K8sApply_1"
+              identifier: "K8sApply_1"
+              template:
+                templateRef: "K8sApply_1"
+                versionLabel: "1"
+                templateInputs:
+                  type: "K8sApply"
+                  spec:
+                    filePaths: "<+input>"
+          - step:
+              name: "K8s Blue Green Swap Services"
+              identifier: "K8s_Blue_Green_Swap_Services"
+              template:
+                templateRef: "K8sBGSwapServices_1"
+                versionLabel: "1"
+          - step:
+              name: "K8s Blue Green Deploy"
+              identifier: "K8s_Blue_Green_Deploy"
+              template:
+                templateRef: "K8sBlueGreenDeploy_1"
+                versionLabel: "1"
+          - step:
+              name: "K8s Canary Delete"
+              identifier: "K8s_Canary_Delete"
+              template:
+                templateRef: "K8sCanaryDelete_1"
+                versionLabel: "1"
+          - step:
+              name: "K8s Canary Deploy"
+              identifier: "K8s_Canary_Deploy"
+              template:
+                templateRef: "K8sCanaryDeploy_1"
+                versionLabel: "1"
+          - step:
+              name: "K8s Rollout Deploy"
+              identifier: "K8s_Rollout_Deploy"
+              template:
+                templateRef: "K8sRollingDeploy_1"
+                versionLabel: "1"
+                gitBranch: "main"
+          - step:
+              name: "Dry Run"
+              identifier: "Dry_Run"
+              template:
+                templateRef: "K8sdryrun"
+                versionLabel: "1"
+          - step:
+              name: "K8s Scale"
+              identifier: "K8s_Scale"
+              template:
+                templateRef: "K8sScale_1"
+                versionLabel: "1"
+                templateInputs:
+                  type: "K8sScale"
+                  spec:
+                    workload: "<+input>"
+          - step:
+              name: "K8s Canary Deployment"
+              identifier: "K8s_Canary_Deployment"
+              template:
+                templateRef: "k8s_Canary_Deployment"
+                versionLabel: "1"
+          - step:
+              name: "K8s BlueGreenStageScaleDown"
+              identifier: "K8s_BlueGreenStageScaleDown"
+              template:
+                templateRef: "k8s_template"
+                versionLabel: "1"
+          - step:
+              name: "K8s Rollout Rollback"
+              identifier: "K8s_Rollout_Rollback"
+              template:
+                templateRef: "K8sRollingRollback_1"
+                versionLabel: "1"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - parallel:
+    - stage:
+        name: "ECS Canary"
+        identifier: "ECS_Canary"
+        description: ""
+        type: "Deployment"
+        spec:
+          deploymentType: "ECS"
+          service:
+            serviceRef: "<+input>"
+            serviceInputs: "<+input>"
+          environment:
+            environmentRef: "<+input>"
+            deployToAll: false
+            environmentInputs: "<+input>"
+            serviceOverrideInputs: "<+input>"
+            infrastructureDefinitions: "<+input>"
+          execution:
+            steps:
+            - step:
+                name: "ECS Canary Deploy"
+                identifier: "ECS_Canary_Deploy"
+                template:
+                  templateRef: "ECS_Canary_Deploy"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+            - step:
+                name: "ECS Canary Delete"
+                identifier: "ECS_Canary_Delete"
+                template:
+                  templateRef: "ECS_Canary_Delete"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+            - step:
+                name: "ECS Rolling Deploy"
+                identifier: "ECS_Rolling_Deploy"
+                template:
+                  templateRef: "ecsc"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "EcsRollingDeploy"
+                    spec:
+                      sameAsAlreadyRunningInstances: "<+input>"
+                      forceNewDeployment: "<+input>"
+            rollbackSteps:
+            - step:
+                name: "ECS Rolling Rollback"
+                identifier: "ECS_Rolling_Rollback"
+                template:
+                  templateRef: "ECS_Rolling_Rollback"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+        tags: {}
+        failureStrategies:
+        - onFailure:
+            errors:
+            - "AllErrors"
+            action:
+              type: "Ignore"
+    - stage:
+        name: "ECS Blue Green "
+        identifier: "ECS_Blue_Green"
+        description: ""
+        type: "Deployment"
+        spec:
+          deploymentType: "ECS"
+          service:
+            serviceRef: "<+input>"
+            serviceInputs: "<+input>"
+          environment:
+            environmentRef: "<+input>"
+            deployToAll: false
+            environmentInputs: "<+input>"
+            serviceOverrideInputs: "<+input>"
+            infrastructureDefinitions: "<+input>"
+          execution:
+            steps:
+            - step:
+                name: "ECS Blue green create service"
+                identifier: "ECS_Blue_green_create_service"
+                template:
+                  templateRef: "ecs"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "EcsBlueGreenCreateService"
+                    spec:
+                      loadBalancer: "<+input>"
+                      prodListener: "<+input>"
+                      prodListenerRuleArn: "<+input>"
+                      stageListener: "<+input>"
+                      stageListenerRuleArn: "<+input>"
+            - step:
+                name: "ECS Blue greeen Swap target groups"
+                identifier: "ECS_Blue_greeen_Swap_target_groups"
+                template:
+                  templateRef: "ec3"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+            - step:
+                name: "ECS Run task"
+                identifier: "ECS_Run_task"
+                template:
+                  templateRef: "sssss"
+                  versionLabel: "ss"
+                  gitBranch: "main"
+                  templateInputs:
+                    type: "EcsRunTask"
+                    spec:
+                      taskDefinition:
+                        type: "Git"
+                        spec:
+                          connectorRef: "<+input>"
+                          repoName: "<+input>"
+                          branch: "<+input>"
+            rollbackSteps:
+            - step:
+                name: "ECS Blue Green Rollback"
+                identifier: "ECS_Blue_Green_Rollback"
+                template:
+                  templateRef: "ecs2"
+                  versionLabel: "v1"
+                  gitBranch: "main"
+        tags: {}
+        failureStrategies:
+        - onFailure:
+            errors:
+            - "AllErrors"
+            action:
+              type: "Ignore"
+  - stage:
+      name: "Azure ARM"
+      identifier: "Azure_ARM"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "AzureWebApp"
+        service:
+          serviceRef: "<+input>"
+          serviceInputs: "<+input>"
+        environment:
+          environmentRef: "<+input>"
+          deployToAll: false
+          environmentInputs: "<+input>"
+          serviceOverrideInputs: "<+input>"
+          infrastructureDefinitions: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Create Azure ARM Resources"
+              identifier: "Create_Azure_ARM_Resources"
+              template:
+                templateRef: "Create_Azure_ARM_Resources"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "AzureCreateARMResource"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+                    configuration:
+                      connectorRef: "<+input>"
+                      template:
+                        store:
+                          type: "Git"
+                          spec:
+                            paths: "<+input>"
+                      scope:
+                        type: "ResourceGroup"
+                        spec:
+                          subscription: "<+input>"
+                          resourceGroup: "<+input>"
+                      parameters:
+                        store:
+                          type: "Git"
+                          spec:
+                            branch: "<+input>"
+                            paths: "<+input>"
+          - step:
+              name: "Create Azure BP Resources"
+              identifier: "Create_Azure_BP_Resources"
+              template:
+                templateRef: "Create_Azure_BP_Resources"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "AzureCreateBPResource"
+                  spec:
+                    configuration:
+                      connectorRef: "<+input>"
+                      assignmentName: "<+input>"
+                      template:
+                        store:
+                          type: "Git"
+                          spec:
+                            folderPath: "<+input>"
+                            branch: "<+input>"
+          - step:
+              name: "Rollback Azure ARM Resources"
+              identifier: "Rollback_Azure_ARM_Resources"
+              template:
+                templateRef: "Rollback_Azure_ARM_Resources"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "AzureARMRollback"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "Misc"
+      identifier: "Misc"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Kubernetes"
+        service:
+          serviceRef: "<+input>"
+          serviceInputs: "<+input>"
+        environment:
+          environmentRef: "<+input>"
+          deployToAll: false
+          environmentInputs: "<+input>"
+          serviceOverrideInputs: "<+input>"
+          infrastructureDefinitions: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "HTTP Step"
+              identifier: "HTTP_Step"
+              template:
+                templateRef: "http"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "Http"
+                  spec:
+                    url: "<+input>"
+                    requestBody: "<+input>"
+          - step:
+              name: "Email"
+              identifier: "Email"
+              template:
+                templateRef: "Email"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "Email"
+                  spec:
+                    to: "<+input>"
+                    cc: "<+input>"
+                    subject: "<+input>"
+                    body: "<+input>"
+          - step:
+              name: "Wait"
+              identifier: "Wait"
+              template:
+                templateRef: "Wait"
+                versionLabel: "v1"
+          - step:
+              name: "Policy"
+              identifier: "Policy"
+              template:
+                templateRef: "Policy"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "Policy"
+                  spec:
+                    type: "Custom"
+                    policySets: "<+input>"
+                    policySpec:
+                      payload: "<+input>"
+          - step:
+              name: "ServiceNow Create"
+              identifier: "ServiceNow_Create"
+              template:
+                templateRef: "ServiceNow_Create"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "ServiceNowCreate"
+                  spec:
+                    connectorRef: "<+input>"
+                    ticketType: "<+input>"
+          - step:
+              name: "ServiceNow Update"
+              identifier: "ServiceNow_Update"
+              template:
+                templateRef: "ServiceNow_Update"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "ServiceNowUpdate"
+                  spec:
+                    connectorRef: "<+input>"
+                    ticketType: "<+input>"
+                    ticketNumber: "<+input>"
+          - step:
+              name: "ServiceNow ImportSet"
+              identifier: "ServiceNow_ImportSet"
+              template:
+                templateRef: "ServiceNow_ImportSet"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "ServiceNowImportSet"
+                  spec:
+                    connectorRef: "<+input>"
+                    stagingTableName: "<+input>"
+                    importData:
+                      type: "Json"
+                      spec:
+                        jsonBody: "<+input>"
+          - step:
+              name: "Verify"
+              identifier: "Verify"
+              template:
+                templateRef: "Verify"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "Verify"
+                  spec:
+                    type: "Auto"
+                    spec:
+                      sensitivity: "<+input>"
+                      duration: "<+input>"
+                      deploymentTag: "<+input>"
+          - step:
+              name: "Queue"
+              identifier: "Queue"
+              template:
+                templateRef: "Queue"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "Queue"
+                  spec:
+                    key: "<+input>"
+          - step:
+              name: "Barrier"
+              identifier: "Barrier"
+              template:
+                templateRef: "Barrier"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "Barrier"
+                  spec:
+                    barrierRef: "<+input>"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "Terraform Cloud"
+      identifier: "Terraform_Cloud"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Kubernetes"
+        service:
+          serviceRef: "<+input>"
+          serviceInputs: "<+input>"
+        environment:
+          environmentRef: "<+input>"
+          deployToAll: false
+          environmentInputs: "<+input>"
+          serviceOverrideInputs: "<+input>"
+          infrastructureDefinitions: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Terraform Cloud Rollback"
+              identifier: "Terraform_Cloud_Rollback"
+              template:
+                templateRef: "Terraform_Cloud_Rollback"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerraformCloudRollback"
+                  spec:
+                    provisionerIdentifier: "<+input>"
+                    discardPendingRuns: "<+input>"
+                    runMessage: "<+input>"
+                    overridePolicies: "<+input>"
+          - step:
+              name: "Terraform Cloud Run"
+              identifier: "Terraform_Cloud_Run"
+              template:
+                templateRef: "Terraform_Cloud_Run"
+                versionLabel: "v1"
+                templateInputs:
+                  type: "TerraformCloudRun"
+                  spec:
+                    runMessage: "<+input>"
+                    spec:
+                      organization: "<+input>"
+                      workspace: "<+input>"
+                      discardPendingRuns: "<+input>"
+                      connectorRef: "<+input>"
+                      provisionerIdentifier: "<+input>"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "SSH WinRM"
+      identifier: "SSH_WinRM"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "Kubernetes"
+        service:
+          serviceRef: "<+input>"
+          serviceInputs: "<+input>"
+        environment:
+          environmentRef: "<+input>"
+          deployToAll: false
+          environmentInputs: "<+input>"
+          serviceOverrideInputs: "<+input>"
+          infrastructureDefinitions: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Shell Script Provision"
+              identifier: "Shell_Script_Provision"
+              template:
+                templateRef: "Shell_Script_Provision"
+                versionLabel: "V1"
+          rollbackSteps: []
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "K8s Helm"
+      identifier: "K8s_Helm"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "NativeHelm"
+        execution:
+          steps:
+          - step:
+              name: "Helm Deploy"
+              identifier: "Helm_Deploy"
+              template:
+                templateRef: "Helm_Deploy"
+                versionLabel: "v1"
+          - step:
+              name: "Helm Rollback"
+              identifier: "Helm_Rollback"
+              template:
+                templateRef: "Helm_Rollback"
+                versionLabel: "v1"
+          rollbackSteps: []
+        service:
+          serviceRef: "<+input>"
+          serviceInputs: "<+input>"
+        environment:
+          environmentRef: "<+input>"
+          deployToAll: false
+          environmentInputs: "<+input>"
+          serviceOverrideInputs: "<+input>"
+          infrastructureDefinitions: "<+input>"
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "Ignore"
+  - stage:
+      name: "Custom Deployment "
+      identifier: "Custom_Deployment"
+      description: ""
+      type: "Deployment"
+      spec:
+        deploymentType: "CustomDeployment"
+        customDeploymentRef:
+          templateRef: "org.CDCNGAuto_DeployTempM6gIp4cWjJ"
+          versionLabel: "v1"
+        service:
+          serviceRef: "<+input>"
+          serviceInputs: "<+input>"
+        execution:
+          steps:
+          - step:
+              name: "Fetch Instances"
+              identifier: "fetchInstances"
+              type: "FetchInstanceScript"
+              timeout: "10m"
+              spec: {}
+          rollbackSteps: []
+        environment:
+          environmentRef: "<+input>"
+          deployToAll: false
+          environmentInputs: "<+input>"
+          serviceOverrideInputs: "<+input>"
+          infrastructureDefinitions: "<+input>"
+      tags: {}
+      failureStrategies:
+      - onFailure:
+          errors:
+          - "AllErrors"
+          action:
+            type: "StageRollback"
+  identifier: "pipeline_nested_templates_Clone"
+  name: "pipeline -nested templates - Clone"
