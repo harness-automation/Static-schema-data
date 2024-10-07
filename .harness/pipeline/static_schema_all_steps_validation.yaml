@@ -100,7 +100,12 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: MarkAsSuccess
+                type: Retry
+                spec:
+                  retryCount: 2
+                  onRetryFailure:
+                    action:
+                      type: MarkAsSuccess
     - stage:
         name: GitOps
         identifier: GitOps
@@ -167,7 +172,12 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: StageRollback
+                type: Retry
+                spec:
+                  onRetryFailure:
+                    action:
+                      type: StageRollback
+                  retryCount: 2
         gitOpsEnabled: true
     - stage:
         name: Terragrunt
@@ -264,7 +274,7 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: Ignore
+                type: ProceedWithDefaultValues
     - stage:
         name: Azure_web_app
         identifier: Azure_web_app
@@ -315,7 +325,12 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: Ignore
+                type: Retry
+                spec:
+                  retryCount: 2
+                  onRetryFailure:
+                    action:
+                      type: Abort
     - stage:
         name: GCF Gen2
         identifier: GCF_Gen2
