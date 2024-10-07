@@ -102,7 +102,7 @@ pipeline:
               action:
                 type: Retry
                 spec:
-                  retryCount: 2
+                  retryCount: null
                   onRetryFailure:
                     action:
                       type: MarkAsSuccess
