@@ -6,7 +6,7 @@ pipeline:
   tags: {}
   stages:
     - stage:
-        name: ASG Template1
+        name: ASG Template
         identifier: ASG
         description: ""
         type: Deployment
@@ -100,11 +100,7 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: Retry
-                spec:
-                  onRetryFailure:
-                    action:
-                      type: MarkAsSuccess
+                type: MarkAsSuccess
     - stage:
         name: GitOps
         identifier: GitOps
@@ -171,12 +167,7 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: Retry
-                spec:
-                  onRetryFailure:
-                    action:
-                      type: StageRollback
-                  retryCount: 2
+                type: StageRollback
         gitOpsEnabled: true
     - stage:
         name: Terragrunt
@@ -273,7 +264,7 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: ProceedWithDefaultValues
+                type: Ignore
     - stage:
         name: Azure_web_app
         identifier: Azure_web_app
@@ -324,12 +315,7 @@ pipeline:
               errors:
                 - AllErrors
               action:
-                type: Retry
-                spec:
-                  retryCount: 2
-                  onRetryFailure:
-                    action:
-                      type: Abort
+                type: Ignore
     - stage:
         name: GCF Gen2
         identifier: GCF_Gen2
@@ -848,6 +834,12 @@ pipeline:
                         templateInputs:
                           type: TanzuCommand
                           timeout: <+input>
+                          spec:
+                            script:
+                              store:
+                                type: Harness
+                                spec:
+                                  files: <+input>
                   - step:
                       name: Route Mapping
                       identifier: Route_Mapping
