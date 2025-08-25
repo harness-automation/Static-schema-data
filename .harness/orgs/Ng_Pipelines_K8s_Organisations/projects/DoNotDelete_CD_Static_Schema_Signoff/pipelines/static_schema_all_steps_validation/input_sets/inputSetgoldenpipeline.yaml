@@ -1,0 +1,809 @@
+inputSet:
+  name: inputSet-golden-pipeline
+  identifier: inputSetgoldenpipeline
+  orgIdentifier: Ng_Pipelines_K8s_Organisations
+  projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
+  pipeline:
+    identifier: static_schema_all_steps_validation
+    stages:
+      - stage:
+          identifier: ASG
+          type: Deployment
+          spec:
+            environment:
+              infrastructureDefinitions:
+                - identifier: non_prod
+                  inputs:
+                    identifier: non_prod
+                    type: Asg
+                    spec:
+                      connectorRef: <+input>
+                      region: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: asg_blue_green_swap_service_
+                    template:
+                      templateInputs:
+                        type: AsgBlueGreenSwapService
+                        spec:
+                          downsizeOldAsg: <+input>
+                - step:
+                    identifier: ASG_Canary_Deploy
+                    template:
+                      templateInputs:
+                        type: AsgCanaryDeploy
+                        timeout: <+input>
+                        spec:
+                          instanceSelection:
+                            type: Count
+                            spec:
+                              count: <+input>
+                - step:
+                    identifier: ASG_Rolling_Deploy
+                    template:
+                      templateInputs:
+                        type: AsgRollingDeploy
+                        timeout: <+input>
+                - step:
+                    identifier: ASG_Blue_Green_Deploy_Step
+                    template:
+                      templateInputs:
+                        type: AsgBlueGreenDeploy
+                        timeout: <+input>
+                        spec:
+                          loadBalancer: <+input>
+                          prodListener: <+input>
+                          prodListenerRuleArn: <+input>
+                          stageListener: <+input>
+                          stageListenerRuleArn: <+input>
+      - stage:
+          identifier: Terragrunt
+          type: Deployment
+          spec:
+            environment:
+              infrastructureDefinitions:
+                - identifier: dummy_infra
+                  inputs:
+                    identifier: dummy_infra
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: <+input>
+                      namespace: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: Terragrunt_Plan
+                    template:
+                      templateInputs:
+                        type: TerragruntPlan
+                        spec:
+                          configuration:
+                            configFiles:
+                              store:
+                                type: Git
+                                spec:
+                                  connectorRef: <+input>
+                                  repoName: <+input>
+                                  branch: <+input>
+                                  folderPath: <+input>
+                            moduleConfig:
+                              path: <+input>
+                            secretManagerRef: <+input>
+                          provisionerIdentifier: <+input>
+                - step:
+                    identifier: Terragrunt_Rollback
+                    template:
+                      templateInputs:
+                        type: TerragruntRollback
+                        spec:
+                          provisionerIdentifier: <+input>
+                - step:
+                    identifier: Terragrunt_Destroy
+                    template:
+                      templateInputs:
+                        type: TerragruntDestroy
+                        spec:
+                          provisionerIdentifier: <+input>
+                - step:
+                    identifier: Terragrunt_Apply
+                    template:
+                      templateInputs:
+                        type: TerragruntApply
+                        spec:
+                          configuration:
+                            type: Inline
+                            spec:
+                              configFiles:
+                                store:
+                                  type: Git
+                                  spec:
+                                    connectorRef: <+input>
+                                    repoName: <+input>
+                                    branch: <+input>
+                                    folderPath: <+input>
+                              moduleConfig:
+                                path: <+input>
+                          provisionerIdentifier: <+input>
+      - stage:
+          identifier: Azure_web_app
+          type: Deployment
+          spec:
+            environment:
+              infrastructureDefinitions:
+                - identifier: azure_webApp_infra
+                  inputs:
+                    identifier: azure_webApp_infra
+                    type: AzureWebApp
+                    spec:
+                      connectorRef: <+input>
+                      subscriptionId: <+input>
+                      resourceGroup: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: Azure_Traffic_Shift
+                    template:
+                      templateInputs:
+                        type: AzureTrafficShift
+                        spec:
+                          traffic: <+input>
+                - step:
+                    identifier: Azure_Swap_Slot
+                    template:
+                      templateInputs:
+                        type: AzureSwapSlot
+                        spec:
+                          targetSlot: <+input>
+      - stage:
+          identifier: GCF_Gen2
+          type: Deployment
+          spec:
+            environment:
+              infrastructureDefinitions:
+                - identifier: gcf_infra
+                  inputs:
+                    identifier: gcf_infra
+                    type: GoogleCloudFunctions
+                    spec:
+                      connectorRef: <+input>
+                      project: <+input>
+                      region: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: Deploy_Cloud_Function
+                    template:
+                      templateInputs:
+                        type: DeployCloudFunction
+                        spec:
+                          updateFieldMask: <+input>
+                - step:
+                    identifier: Deploy_Cloud_Function_With_No_Traffic
+                    template:
+                      templateInputs:
+                        type: DeployCloudFunctionWithNoTraffic
+                        spec:
+                          updateFieldMask: <+input>
+      - stage:
+          identifier: GCF_Gen1
+          type: Deployment
+          spec:
+            execution:
+              steps:
+                - step:
+                    identifier: Deploy_Cloud_Function_Gen_One
+                    template:
+                      templateInputs:
+                        type: DeployCloudFunctionGenOne
+                        spec:
+                          updateFieldMask: <+input>
+            environment:
+              infrastructureDefinitions:
+                - identifier: gcf_infra
+                  inputs:
+                    identifier: gcf_infra
+                    type: GoogleCloudFunctions
+                    spec:
+                      connectorRef: <+input>
+                      project: <+input>
+                      region: <+input>
+      - stage:
+          identifier: AWS_LAMBDA
+          type: Deployment
+          spec:
+            environment:
+              infrastructureDefinitions:
+                - identifier: AWS_LAMBDA_Infra
+                  inputs:
+                    identifier: AWS_LAMBDA_Infra
+                    type: AwsLambda
+                    spec:
+                      connectorRef: <+input>
+                      region: <+input>
+      - stage:
+          identifier: Spotinst
+          type: Deployment
+          spec:
+            environment:
+              infrastructureDefinitions: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: Elastigroup_Blue_Green_Setup
+                    template:
+                      templateInputs:
+                        type: ElastigroupBGStageSetup
+                        spec:
+                          name: <+input>
+                          instances:
+                            type: Fixed
+                            spec:
+                              max: <+input>
+                              min: <+input>
+                - step:
+                    identifier: Elastigroup_Deploy
+                    template:
+                      templateInputs:
+                        type: ElastigroupDeploy
+                        spec:
+                          newService:
+                            type: Count
+                            spec:
+                              count: <+input>
+                - step:
+                    identifier: Elastigroup_Setup
+                    template:
+                      templateInputs:
+                        type: ElastigroupSetup
+                        spec:
+                          name: <+input>
+                          instances:
+                            type: Fixed
+                            spec:
+                              desired: <+input>
+                              max: <+input>
+                              min: <+input>
+      - stage:
+          identifier: Terraform
+          type: Deployment
+          spec:
+            environment:
+              infrastructureDefinitions:
+                - identifier: dummy_infra
+                  inputs:
+                    identifier: dummy_infra
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: <+input>
+                      namespace: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: Terraform_Apply
+                    template:
+                      templateInputs:
+                        type: TerraformApply
+                        spec:
+                          provisionerIdentifier: <+input>
+                          configuration:
+                            type: Inline
+                            spec:
+                              configFiles:
+                                store:
+                                  type: Github
+                                  spec:
+                                    connectorRef: <+input>
+                                    repoName: <+input>
+                                    branch: <+input>
+                                    folderPath: <+input>
+                - step:
+                    identifier: Terraform_Rollback
+                    template:
+                      templateInputs:
+                        type: TerraformRollback
+                        spec:
+                          provisionerIdentifier: <+input>
+                - step:
+                    identifier: Terraform_Plan_Apply
+                    template:
+                      templateInputs:
+                        type: TerraformPlan
+                        spec:
+                          provisionerIdentifier: <+input>
+                          configuration:
+                            configFiles:
+                              store:
+                                type: Git
+                                spec:
+                                  connectorRef: <+input>
+                                  repoName: <+input>
+                                  folderPath: <+input>
+                                  branch: <+input>
+                            secretManagerRef: <+input>
+                - step:
+                    identifier: Terraform_Plan_Destroy
+                    template:
+                      templateInputs:
+                        type: TerraformPlan
+                        spec:
+                          provisionerIdentifier: <+input>
+                          configuration:
+                            configFiles:
+                              store:
+                                type: Github
+                                spec:
+                                  connectorRef: <+input>
+                                  repoName: <+input>
+                                  branch: <+input>
+                                  folderPath: <+input>
+                            secretManagerRef: <+input>
+                - step:
+                    identifier: Terraform_Destroy
+                    template:
+                      templateInputs:
+                        type: TerraformDestroy
+                        spec:
+                          provisionerIdentifier: <+input>
+                          configuration:
+                            type: Inline
+                            spec:
+                              configFiles:
+                                store:
+                                  type: Github
+                                  spec:
+                                    connectorRef: <+input>
+                                    repoName: <+input>
+                                    branch: <+input>
+                                    folderPath: <+input>
+      - stage:
+          identifier: Serverless_Lambda
+          type: Deployment
+          spec:
+            service:
+              serviceRef: <+input>
+              serviceInputs: <+input>
+            environment:
+              environmentRef: <+input>
+              environmentInputs: <+input>
+              serviceOverrideInputs: <+input>
+              infrastructureDefinitions: <+input>
+      - parallel:
+          - stage:
+              identifier: TAS
+              type: Deployment
+              spec:
+                service:
+                  serviceRef: <+input>
+                  serviceInputs: <+input>
+                environment:
+                  environmentRef: <+input>
+                  environmentInputs: <+input>
+                  serviceOverrideInputs: <+input>
+                  infrastructureDefinitions: <+input>
+                execution:
+                  steps:
+                    - step:
+                        identifier: Canary_App_Setup
+                        template:
+                          templateInputs:
+                            type: CanaryAppSetup
+                            spec:
+                              additionalRoutes: <+input>
+                    - step:
+                        identifier: App_Resize
+                        template:
+                          templateInputs:
+                            type: AppResize
+                            spec:
+                              ignoreInstanceCountManifest: <+input>
+                              oldAppInstances:
+                                type: Percentage
+                                spec:
+                                  value: <+input>
+                    - step:
+                        identifier: Swap_Routes
+                        template:
+                          templateInputs:
+                            type: SwapRoutes
+                            spec:
+                              downSizeOldApplication: <+input>
+          - stage:
+              identifier: TAS_Basic_App
+              type: Deployment
+              spec:
+                service:
+                  serviceRef: <+input>
+                  serviceInputs: <+input>
+                environment:
+                  environmentRef: <+input>
+                  environmentInputs: <+input>
+                  serviceOverrideInputs: <+input>
+                  infrastructureDefinitions: <+input>
+                execution:
+                  steps:
+                    - step:
+                        identifier: Basic_App_Setup
+                        template:
+                          templateInputs:
+                            type: BasicAppSetup
+                            spec:
+                              additionalRoutes: <+input>
+                    - step:
+                        identifier: Tanzu_Command
+                        template:
+                          templateInputs:
+                            type: TanzuCommand
+                            timeout: <+input>
+                    - step:
+                        identifier: Route_Mapping
+                        template:
+                          templateInputs:
+                            type: RouteMapping
+                            spec:
+                              appName: <+input>
+                              routes: <+input>
+          - stage:
+              identifier: BG_App_Setup
+              type: Deployment
+              spec:
+                service:
+                  serviceRef: <+input>
+                  serviceInputs: <+input>
+                environment:
+                  environmentRef: <+input>
+                  environmentInputs: <+input>
+                  serviceOverrideInputs: <+input>
+                  infrastructureDefinitions: <+input>
+                execution:
+                  steps:
+                    - step:
+                        identifier: BG_App_Setup
+                        template:
+                          templateInputs:
+                            type: BGAppSetup
+                            spec:
+                              tempRoutes: <+input>
+                              additionalRoutes: <+input>
+          - stage:
+              identifier: TAS_Rolling_Deploy
+              type: Deployment
+              spec:
+                service:
+                  serviceRef: <+input>
+                  serviceInputs: <+input>
+                environment:
+                  environmentRef: <+input>
+                  environmentInputs: <+input>
+                  serviceOverrideInputs: <+input>
+                  infrastructureDefinitions: <+input>
+                execution:
+                  steps:
+                    - step:
+                        identifier: Rolling_Deployment
+                        template:
+                          templateInputs:
+                            type: TasRollingDeploy
+                            spec:
+                              additionalRoutes: <+input>
+      - stage:
+          identifier: K8s
+          type: Deployment
+          spec:
+            environment:
+              infrastructureDefinitions:
+                - identifier: dummy_infra
+                  inputs:
+                    identifier: dummy_infra
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: <+input>
+                      namespace: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: K8sApply_1
+                    template:
+                      templateInputs:
+                        type: K8sApply
+                        spec:
+                          filePaths: <+input>
+                - step:
+                    identifier: K8s_Scale
+                    template:
+                      templateInputs:
+                        type: K8sScale
+                        spec:
+                          workload: <+input>
+      - parallel:
+          - stage:
+              identifier: ECS_Canary
+              type: Deployment
+              spec:
+                service:
+                  serviceRef: <+input>
+                  serviceInputs: <+input>
+                environment:
+                  environmentRef: <+input>
+                  environmentInputs: <+input>
+                  serviceOverrideInputs: <+input>
+                  infrastructureDefinitions: <+input>
+                execution:
+                  steps:
+                    - step:
+                        identifier: ECS_Rolling_Deploy
+                        template:
+                          templateInputs:
+                            type: EcsRollingDeploy
+                            spec:
+                              sameAsAlreadyRunningInstances: <+input>
+                              forceNewDeployment: <+input>
+          - stage:
+              identifier: ECS_Blue_Green
+              type: Deployment
+              spec:
+                service:
+                  serviceRef: <+input>
+                  serviceInputs: <+input>
+                environment:
+                  environmentRef: <+input>
+                  environmentInputs: <+input>
+                  serviceOverrideInputs: <+input>
+                  infrastructureDefinitions: <+input>
+                execution:
+                  steps:
+                    - step:
+                        identifier: ECS_Blue_green_create_service
+                        template:
+                          templateInputs:
+                            type: EcsBlueGreenCreateService
+                            spec:
+                              loadBalancer: <+input>
+                              prodListener: <+input>
+                              prodListenerRuleArn: <+input>
+                              stageListener: <+input>
+                              stageListenerRuleArn: <+input>
+                    - step:
+                        identifier: ECS_Run_task
+                        template:
+                          templateInputs:
+                            type: EcsRunTask
+                            spec:
+                              taskDefinition:
+                                type: Git
+                                spec:
+                                  connectorRef: <+input>
+                                  repoName: <+input>
+                                  branch: <+input>
+      - stage:
+          identifier: Azure_ARM
+          type: Deployment
+          spec:
+            service:
+              serviceRef: <+input>
+              serviceInputs: <+input>
+            environment:
+              environmentRef: <+input>
+              environmentInputs: <+input>
+              serviceOverrideInputs: <+input>
+              infrastructureDefinitions: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: Create_Azure_ARM_Resources
+                    template:
+                      templateInputs:
+                        type: AzureCreateARMResource
+                        spec:
+                          provisionerIdentifier: <+input>
+                          configuration:
+                            connectorRef: <+input>
+                            template:
+                              store:
+                                type: Git
+                                spec:
+                                  paths:
+                                    - <+input>
+                            scope:
+                              type: ResourceGroup
+                              spec:
+                                subscription: <+input>
+                                resourceGroup: <+input>
+                            parameters:
+                              store:
+                                type: Git
+                                spec:
+                                  branch: <+input>
+                                  paths:
+                                    - <+input>
+                - step:
+                    identifier: Create_Azure_BP_Resources
+                    template:
+                      templateInputs:
+                        type: AzureCreateBPResource
+                        spec:
+                          configuration:
+                            connectorRef: <+input>
+                            assignmentName: <+input>
+                            template:
+                              store:
+                                type: Git
+                                spec:
+                                  folderPath: <+input>
+                                  branch: <+input>
+                - step:
+                    identifier: Rollback_Azure_ARM_Resources
+                    template:
+                      templateInputs:
+                        type: AzureARMRollback
+                        spec:
+                          provisionerIdentifier: <+input>
+      - stage:
+          identifier: Misc
+          type: Deployment
+          spec:
+            service:
+              serviceRef: <+input>
+              serviceInputs: <+input>
+            environment:
+              environmentRef: <+input>
+              environmentInputs: <+input>
+              serviceOverrideInputs: <+input>
+              infrastructureDefinitions: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: HTTP_Step
+                    template:
+                      templateInputs:
+                        type: Http
+                        spec:
+                          url: <+input>
+                          requestBody: <+input>
+                - step:
+                    identifier: Email
+                    template:
+                      templateInputs:
+                        type: Email
+                        spec:
+                          to: <+input>
+                          cc: <+input>
+                          subject: <+input>
+                          body: <+input>
+                - step:
+                    identifier: Policy
+                    template:
+                      templateInputs:
+                        type: Policy
+                        spec:
+                          type: Custom
+                          policySets: <+input>
+                          policySpec:
+                            payload: <+input>
+                - step:
+                    identifier: ServiceNow_Create
+                    template:
+                      templateInputs:
+                        type: ServiceNowCreate
+                        spec:
+                          connectorRef: <+input>
+                          ticketType: <+input>
+                - step:
+                    identifier: ServiceNow_Update
+                    template:
+                      templateInputs:
+                        type: ServiceNowUpdate
+                        spec:
+                          connectorRef: <+input>
+                          ticketType: <+input>
+                          ticketNumber: <+input>
+                - step:
+                    identifier: ServiceNow_ImportSet
+                    template:
+                      templateInputs:
+                        type: ServiceNowImportSet
+                        spec:
+                          connectorRef: <+input>
+                          stagingTableName: <+input>
+                          importData:
+                            type: Json
+                            spec:
+                              jsonBody: <+input>
+                - step:
+                    identifier: Verify
+                    template:
+                      templateInputs:
+                        type: Verify
+                        spec:
+                          type: Auto
+                          spec:
+                            sensitivity: <+input>
+                            duration: <+input>
+                            deploymentTag: <+input>
+                - step:
+                    identifier: Queue
+                    template:
+                      templateInputs:
+                        type: Queue
+                        spec:
+                          key: <+input>
+                - step:
+                    identifier: Barrier
+                    template:
+                      templateInputs:
+                        type: Barrier
+                        spec:
+                          barrierRef: <+input>
+      - stage:
+          identifier: Terraform_Cloud
+          type: Deployment
+          spec:
+            service:
+              serviceRef: <+input>
+              serviceInputs: <+input>
+            environment:
+              environmentRef: <+input>
+              environmentInputs: <+input>
+              serviceOverrideInputs: <+input>
+              infrastructureDefinitions: <+input>
+            execution:
+              steps:
+                - step:
+                    identifier: Terraform_Cloud_Rollback
+                    template:
+                      templateInputs:
+                        type: TerraformCloudRollback
+                        spec:
+                          provisionerIdentifier: <+input>
+                          discardPendingRuns: <+input>
+                          runMessage: <+input>
+                          overridePolicies: <+input>
+                - step:
+                    identifier: Terraform_Cloud_Run
+                    template:
+                      templateInputs:
+                        type: TerraformCloudRun
+                        spec:
+                          runMessage: <+input>
+                          spec:
+                            organization: <+input>
+                            workspace: <+input>
+                            discardPendingRuns: <+input>
+                            connectorRef: <+input>
+                            provisionerIdentifier: <+input>
+      - stage:
+          identifier: SSH_WinRM
+          type: Deployment
+          spec:
+            service:
+              serviceRef: <+input>
+              serviceInputs: <+input>
+            environment:
+              environmentRef: <+input>
+              environmentInputs: <+input>
+              serviceOverrideInputs: <+input>
+              infrastructureDefinitions: <+input>
+      - stage:
+          identifier: K8s_Helm
+          type: Deployment
+          spec:
+            service:
+              serviceRef: <+input>
+              serviceInputs: <+input>
+            environment:
+              environmentRef: <+input>
+              environmentInputs: <+input>
+              serviceOverrideInputs: <+input>
+              infrastructureDefinitions: <+input>
+      - stage:
+          identifier: Custom_Deployment
+          type: Deployment
+          spec:
+            service:
+              serviceRef: <+input>
+              serviceInputs: <+input>
+            environment:
+              environmentRef: <+input>
+              environmentInputs: <+input>
+              serviceOverrideInputs: <+input>
+              infrastructureDefinitions: <+input>
