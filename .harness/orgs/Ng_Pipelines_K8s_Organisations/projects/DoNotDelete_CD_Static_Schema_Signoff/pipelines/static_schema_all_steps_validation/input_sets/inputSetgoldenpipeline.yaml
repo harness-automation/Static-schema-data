@@ -644,13 +644,17 @@ inputSet:
           type: Deployment
           spec:
             service:
-              serviceRef: <+input>
-              serviceInputs: <+input>
+              serviceRef: k8s_svc
             environment:
-              environmentRef: <+input>
-              environmentInputs: <+input>
-              serviceOverrideInputs: <+input>
-              infrastructureDefinitions: <+input>
+              environmentRef: test_env
+              infrastructureDefinitions:
+                - identifier: dummy_infra
+                  inputs:
+                    identifier: dummy_infra
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: org.KubernetesConnectorForAutomationTest
+                      namespace: default
             execution:
               steps:
                 - step:
@@ -659,18 +663,18 @@ inputSet:
                       templateInputs:
                         type: Http
                         spec:
-                          url: <+input>
-                          requestBody: <+input>
+                          url: test
+                          requestBody: test
                 - step:
                     identifier: Email
                     template:
                       templateInputs:
                         type: Email
                         spec:
-                          to: <+input>
-                          cc: <+input>
-                          subject: <+input>
-                          body: <+input>
+                          to: test
+                          cc: test
+                          subject: test
+                          body: test
                 - step:
                     identifier: Policy
                     template:
@@ -680,36 +684,36 @@ inputSet:
                           type: Custom
                           policySets: <+input>
                           policySpec:
-                            payload: <+input>
+                            payload: test
                 - step:
                     identifier: ServiceNow_Create
                     template:
                       templateInputs:
                         type: ServiceNowCreate
                         spec:
-                          connectorRef: <+input>
-                          ticketType: <+input>
+                          connectorRef: account.SnowProjectLevelConnectorpyuQcOKjct
+                          ticketType: asset_task
                 - step:
                     identifier: ServiceNow_Update
                     template:
                       templateInputs:
                         type: ServiceNowUpdate
                         spec:
-                          connectorRef: <+input>
-                          ticketType: <+input>
-                          ticketNumber: <+input>
+                          connectorRef: account.SnowProjectLevelConnectorpyuQcOKjct
+                          ticketType: asset_task
+                          ticketNumber: vcvv
                 - step:
                     identifier: ServiceNow_ImportSet
                     template:
                       templateInputs:
                         type: ServiceNowImportSet
                         spec:
-                          connectorRef: <+input>
+                          connectorRef: account.testSNow
                           stagingTableName: <+input>
                           importData:
                             type: Json
                             spec:
-                              jsonBody: <+input>
+                              jsonBody: test
                 - step:
                     identifier: Verify
                     template:
@@ -740,13 +744,17 @@ inputSet:
           type: Deployment
           spec:
             service:
-              serviceRef: <+input>
-              serviceInputs: <+input>
+              serviceRef: k8s_svc
             environment:
-              environmentRef: <+input>
-              environmentInputs: <+input>
-              serviceOverrideInputs: <+input>
-              infrastructureDefinitions: <+input>
+              environmentRef: test_env
+              infrastructureDefinitions:
+                - identifier: dummy_infra
+                  inputs:
+                    identifier: dummy_infra
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: <+input>
+                      namespace: <+input>
             execution:
               steps:
                 - step:
@@ -755,21 +763,21 @@ inputSet:
                       templateInputs:
                         type: TerraformCloudRollback
                         spec:
-                          provisionerIdentifier: <+input>
-                          discardPendingRuns: <+input>
-                          runMessage: <+input>
-                          overridePolicies: <+input>
+                          provisionerIdentifier: test
+                          discardPendingRuns: true
+                          runMessage: test
+                          overridePolicies: true
                 - step:
                     identifier: Terraform_Cloud_Run
                     template:
                       templateInputs:
                         type: TerraformCloudRun
                         spec:
-                          runMessage: <+input>
+                          runMessage: test
                           spec:
                             organization: <+input>
                             workspace: <+input>
-                            discardPendingRuns: <+input>
+                            discardPendingRuns: true
                             connectorRef: <+input>
                             provisionerIdentifier: <+input>
       - stage:
@@ -777,25 +785,31 @@ inputSet:
           type: Deployment
           spec:
             service:
-              serviceRef: <+input>
-              serviceInputs: <+input>
+              serviceRef: k8s_svc
             environment:
-              environmentRef: <+input>
-              environmentInputs: <+input>
-              serviceOverrideInputs: <+input>
-              infrastructureDefinitions: <+input>
+              environmentRef: test_env
+              infrastructureDefinitions:
+                - identifier: dummy_infra
+                  inputs:
+                    identifier: dummy_infra
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: <+input>
+                      namespace: <+input>
       - stage:
           identifier: K8s_Helm
           type: Deployment
           spec:
             service:
-              serviceRef: <+input>
-              serviceInputs: <+input>
+              serviceRef: account.ServNgZd0bBZJgQx
+              serviceInputs:
+                serviceDefinition:
+                  type: Kubernetes
+                  spec:
+                    release:
+                      name: test
             environment:
-              environmentRef: <+input>
-              environmentInputs: <+input>
-              serviceOverrideInputs: <+input>
-              infrastructureDefinitions: <+input>
+              environmentRef: test_env
       - stage:
           identifier: Custom_Deployment
           type: Deployment
