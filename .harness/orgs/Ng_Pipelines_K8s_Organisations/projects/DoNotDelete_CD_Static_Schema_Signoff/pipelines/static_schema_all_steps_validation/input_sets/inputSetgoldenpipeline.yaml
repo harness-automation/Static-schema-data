@@ -1,5 +1,6 @@
 inputSet:
   name: inputSet-golden-pipeline
+  tags: {}
   identifier: inputSetgoldenpipeline
   orgIdentifier: Ng_Pipelines_K8s_Organisations
   projectIdentifier: DoNotDelete_CD_Static_Schema_Signoff
@@ -17,8 +18,9 @@ inputSet:
                     identifier: non_prod
                     type: Asg
                     spec:
-                      connectorRef: <+input>
-                      region: <+input>
+                      connectorRef: account.ECRConnectorForAutomationTest
+                      region: ap-south-2
+                      baseAsgName: <+input>
             execution:
               steps:
                 - step:
@@ -27,30 +29,30 @@ inputSet:
                       templateInputs:
                         type: AsgBlueGreenSwapService
                         spec:
-                          downsizeOldAsg: <+input>
+                          downsizeOldAsg: true
                 - step:
                     identifier: ASG_Canary_Deploy
                     template:
                       templateInputs:
                         type: AsgCanaryDeploy
-                        timeout: <+input>
+                        timeout: 10m
                         spec:
                           instanceSelection:
                             type: Count
                             spec:
-                              count: <+input>
+                              count: 1
                 - step:
                     identifier: ASG_Rolling_Deploy
                     template:
                       templateInputs:
                         type: AsgRollingDeploy
-                        timeout: <+input>
+                        timeout: 10m
                 - step:
                     identifier: ASG_Blue_Green_Deploy_Step
                     template:
                       templateInputs:
                         type: AsgBlueGreenDeploy
-                        timeout: <+input>
+                        timeout: 10m
                         spec:
                           loadBalancer: <+input>
                           prodListener: <+input>
@@ -68,8 +70,8 @@ inputSet:
                     identifier: dummy_infra
                     type: KubernetesDirect
                     spec:
-                      connectorRef: <+input>
-                      namespace: <+input>
+                      connectorRef: org.KubernetesConnectorForAutomationTest
+                      namespace: harness-delegate-ng
             execution:
               steps:
                 - step:
@@ -88,9 +90,9 @@ inputSet:
                                   branch: <+input>
                                   folderPath: <+input>
                             moduleConfig:
-                              path: <+input>
-                            secretManagerRef: <+input>
-                          provisionerIdentifier: <+input>
+                              path: test
+                            secretManagerRef: account.harnessSecretManager
+                          provisionerIdentifier: test
                 - step:
                     identifier: Terragrunt_Rollback
                     template:
