@@ -148,14 +148,14 @@ inputSet:
                       templateInputs:
                         type: AzureTrafficShift
                         spec:
-                          traffic: <+input>
+                          traffic: "1"
                 - step:
                     identifier: Azure_Swap_Slot
                     template:
                       templateInputs:
                         type: AzureSwapSlot
                         spec:
-                          targetSlot: <+input>
+                          targetSlot: vcc
       - stage:
           identifier: GCF_Gen2
           type: Deployment
@@ -167,9 +167,9 @@ inputSet:
                     identifier: gcf_infra
                     type: GoogleCloudFunctions
                     spec:
-                      connectorRef: <+input>
-                      project: <+input>
-                      region: <+input>
+                      connectorRef: account.cdplay
+                      project: ffsf
+                      region: asia
             execution:
               steps:
                 - step:
@@ -178,14 +178,14 @@ inputSet:
                       templateInputs:
                         type: DeployCloudFunction
                         spec:
-                          updateFieldMask: <+input>
+                          updateFieldMask: test
                 - step:
                     identifier: Deploy_Cloud_Function_With_No_Traffic
                     template:
                       templateInputs:
                         type: DeployCloudFunctionWithNoTraffic
                         spec:
-                          updateFieldMask: <+input>
+                          updateFieldMask: test
       - stage:
           identifier: GCF_Gen1
           type: Deployment
@@ -198,7 +198,7 @@ inputSet:
                       templateInputs:
                         type: DeployCloudFunctionGenOne
                         spec:
-                          updateFieldMask: <+input>
+                          updateFieldMask: cxc
             environment:
               infrastructureDefinitions:
                 - identifier: gcf_infra
@@ -206,9 +206,9 @@ inputSet:
                     identifier: gcf_infra
                     type: GoogleCloudFunctions
                     spec:
-                      connectorRef: <+input>
-                      project: <+input>
-                      region: <+input>
+                      connectorRef: account.cdplayGCP
+                      project: cxc
+                      region: asia-east1
       - stage:
           identifier: AWS_LAMBDA
           type: Deployment
