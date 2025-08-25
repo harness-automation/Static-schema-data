@@ -20,7 +20,6 @@ inputSet:
                     spec:
                       connectorRef: account.ECRConnectorForAutomationTest
                       region: ap-south-2
-                      baseAsgName: <+input>
             execution:
               steps:
                 - step:
@@ -85,10 +84,10 @@ inputSet:
                               store:
                                 type: Git
                                 spec:
-                                  connectorRef: <+input>
-                                  repoName: <+input>
-                                  branch: <+input>
-                                  folderPath: <+input>
+                                  connectorRef: org.GitConnectorForAutomationTest
+                                  repoName: test
+                                  branch: test
+                                  folderPath: test
                             moduleConfig:
                               path: test
                             secretManagerRef: account.harnessSecretManager
@@ -99,14 +98,14 @@ inputSet:
                       templateInputs:
                         type: TerragruntRollback
                         spec:
-                          provisionerIdentifier: <+input>
+                          provisionerIdentifier: test
                 - step:
                     identifier: Terragrunt_Destroy
                     template:
                       templateInputs:
                         type: TerragruntDestroy
                         spec:
-                          provisionerIdentifier: <+input>
+                          provisionerIdentifier: test
                 - step:
                     identifier: Terragrunt_Apply
                     template:
@@ -120,13 +119,13 @@ inputSet:
                                 store:
                                   type: Git
                                   spec:
-                                    connectorRef: <+input>
-                                    repoName: <+input>
-                                    branch: <+input>
-                                    folderPath: <+input>
+                                    connectorRef: org.GitConnectorForAutomationTest
+                                    repoName: test
+                                    branch: test
+                                    folderPath: test
                               moduleConfig:
-                                path: <+input>
-                          provisionerIdentifier: <+input>
+                                path: test
+                          provisionerIdentifier: test
       - stage:
           identifier: Azure_web_app
           type: Deployment
@@ -138,9 +137,9 @@ inputSet:
                     identifier: azure_webApp_infra
                     type: AzureWebApp
                     spec:
-                      connectorRef: <+input>
-                      subscriptionId: <+input>
-                      resourceGroup: <+input>
+                      connectorRef: account.ACRConnectorForAutomationTest
+                      subscriptionId: gdg
+                      resourceGroup: dvdv
             execution:
               steps:
                 - step:
