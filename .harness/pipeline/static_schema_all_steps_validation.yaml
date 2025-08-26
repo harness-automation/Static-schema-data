@@ -834,6 +834,12 @@ pipeline:
                         templateInputs:
                           type: TanzuCommand
                           timeout: <+input>
+                          spec:
+                            script:
+                              store:
+                                type: Harness
+                                spec:
+                                  files: <+input>
                   - step:
                       name: Route Mapping
                       identifier: Route_Mapping
